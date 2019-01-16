@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NGLogman Dashboard</title>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400 " rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+<body>
+<header>
+    <!--<h1><a href="/">Summary</a></h1>-->
+    {% block titleheader %}
+    {% endblock titleheader %}
+</header>
+<div class="container">
+    {% block contentlist %}
+    {% endblock contentlist %}
+</div>
+</body>
+</html>

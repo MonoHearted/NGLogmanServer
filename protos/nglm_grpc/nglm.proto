@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package nglm_grpc;
+
+service Client {
+	rpc register(clientInfo) returns (response) {}
+}
+
+message clientInfo {
+	string hostname = 1;
+	string ipv4 = 2;
+}
+
+message response {
+	bool success = 1;
+}

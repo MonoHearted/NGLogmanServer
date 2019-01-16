@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block titleheader %}
+<h1><a href="/">Node List</a></h1>
+{% endblock titleheader %}
+
+{% block contentlist %}
+{% for node in object_list %}
+<div class="node-entry">
+    <h2><a href="">Node: {{ node.hostname }}</a></h2>
+    <p>IPv4 {{ node.ip }}</p>
+</div>
+{% endfor %}
+{% endblock contentlist %}
