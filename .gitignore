@@ -2,4 +2,4 @@ logs/*
 .idea/*
 *.pyc
 *.sqlite3
-nglogman/migrations/
+nglogman/migrations/*
