@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='nglm_grpc',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x14nglm_grpc/nglm.proto\x12\tnglm_grpc\",\n\nclientInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\x0c\n\x04ipv4\x18\x02 \x01(\t\"\x1b\n\x08response\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\x42\n\x06\x43lient\x12\x38\n\x08register\x12\x15.nglm_grpc.clientInfo\x1a\x13.nglm_grpc.response\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x14nglm_grpc/nglm.proto\x12\tnglm_grpc\":\n\nclientInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\x0c\n\x04ipv4\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\"\x1b\n\x08response\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\x42\n\x06Server\x12\x38\n\x08register\x12\x15.nglm_grpc.clientInfo\x1a\x13.nglm_grpc.response\"\x00\x62\x06proto3')
 )
 
 
@@ -46,6 +46,13 @@ _CLIENTINFO = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='port', full_name='nglm_grpc.clientInfo.port', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -59,7 +66,7 @@ _CLIENTINFO = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=35,
-  serialized_end=79,
+  serialized_end=93,
 )
 
 
@@ -89,8 +96,8 @@ _RESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=81,
-  serialized_end=108,
+  serialized_start=95,
+  serialized_end=122,
 )
 
 DESCRIPTOR.message_types_by_name['clientInfo'] = _CLIENTINFO
@@ -113,18 +120,18 @@ _sym_db.RegisterMessage(response)
 
 
 
-_CLIENT = _descriptor.ServiceDescriptor(
-  name='Client',
-  full_name='nglm_grpc.Client',
+_SERVER = _descriptor.ServiceDescriptor(
+  name='Server',
+  full_name='nglm_grpc.Server',
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=110,
-  serialized_end=176,
+  serialized_start=124,
+  serialized_end=190,
   methods=[
   _descriptor.MethodDescriptor(
     name='register',
-    full_name='nglm_grpc.Client.register',
+    full_name='nglm_grpc.Server.register',
     index=0,
     containing_service=None,
     input_type=_CLIENTINFO,
@@ -132,8 +139,8 @@ _CLIENT = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
 ])
-_sym_db.RegisterServiceDescriptor(_CLIENT)
+_sym_db.RegisterServiceDescriptor(_SERVER)
 
-DESCRIPTOR.services_by_name['Client'] = _CLIENT
+DESCRIPTOR.services_by_name['Server'] = _SERVER
 
 # @@protoc_insertion_point(module_scope)

@@ -7,6 +7,7 @@ class LGNode(models.Model):
     """
     hostname = models.CharField(max_length=200)
     ip = models.GenericIPAddressField()
+    port = models.IntegerField(default=50051)
     comments = models.TextField(default='')
     nodeUUID = models.UUIDField(primary_key=True,default=uuid.uuid4(),null=False,editable=True)
 

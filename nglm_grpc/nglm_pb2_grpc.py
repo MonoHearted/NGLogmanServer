@@ -4,7 +4,7 @@ import grpc
 from nglm_grpc import nglm_pb2 as nglm__grpc_dot_nglm__pb2
 
 
-class ClientStub(object):
+class ServerStub(object):
   # missing associated documentation comment in .proto file
   pass
 
@@ -15,13 +15,13 @@ class ClientStub(object):
       channel: A grpc.Channel.
     """
     self.register = channel.unary_unary(
-        '/nglm_grpc.Client/register',
+        '/nglm_grpc.Server/register',
         request_serializer=nglm__grpc_dot_nglm__pb2.clientInfo.SerializeToString,
         response_deserializer=nglm__grpc_dot_nglm__pb2.response.FromString,
         )
 
 
-class ClientServicer(object):
+class ServerServicer(object):
   # missing associated documentation comment in .proto file
   pass
 
@@ -33,7 +33,7 @@ class ClientServicer(object):
     raise NotImplementedError('Method not implemented!')
 
 
-def add_ClientServicer_to_server(servicer, server):
+def add_ServerServicer_to_server(servicer, server):
   rpc_method_handlers = {
       'register': grpc.unary_unary_rpc_method_handler(
           servicer.register,
@@ -42,5 +42,5 @@ def add_ClientServicer_to_server(servicer, server):
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'nglm_grpc.Client', rpc_method_handlers)
+      'nglm_grpc.Server', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))

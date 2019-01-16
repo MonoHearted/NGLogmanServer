@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+import time
 import sys
 
 urlpatterns = [
@@ -30,10 +31,17 @@ if 'runserver' in sys.argv:
     import grpc
 
     from nglm_grpc.modules.Utility import singletonThreadPool
-    from nglm_grpc.gRPCMethods import addToServer
+    from nglm_grpc.gRPCMethods import addToServer, checkNodes
+    from nglogman.models import LGNode
 
     server = grpc.server(singletonThreadPool(max_workers=10))
     addToServer(server)
     server.add_insecure_port('[::]:50051')
     server.start()
     print('gRPC server now listening on port 50051\n')
+
+    # Health check testing, wait for clients to connect
+    time.sleep(10)
+    availableNodes = checkNodes(LGNode.objects.all())
+    print('Available nodes: ' + ', '.join(availableNodes))
+
