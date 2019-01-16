@@ -1,8 +1,5 @@
 logs/*
 .idea/*
-Client_Side/logs/*
-Server_Side/logs/*
 *.pyc
-Server_Side/db.sqlite3
 *.sqlite3
-Server_Side/nglogman/migrations/*
+nglogman/migrations/*
