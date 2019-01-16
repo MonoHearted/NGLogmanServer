@@ -14,8 +14,8 @@ class LGNode(models.Model):
         return self.hostname
 
     class Meta:
-        verbose_name = 'Logging Node'
-        verbose_name_plural = 'Logging Nodes'
+        verbose_name = 'Logman Node'
+        verbose_name_plural = 'Logman Nodes'
 
 
 class Task(models.Model):

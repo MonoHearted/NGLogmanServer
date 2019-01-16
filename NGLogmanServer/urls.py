@@ -29,8 +29,8 @@ urlpatterns = [
 if 'runserver' in sys.argv:
     import grpc
 
-    from Server_Side.nglm_grpc.modules.Utility import singletonThreadPool
-    from Server_Side.nglm_grpc.gRPCMethods import addToServer
+    from nglm_grpc.modules.Utility import singletonThreadPool
+    from nglm_grpc.gRPCMethods import addToServer
 
     server = grpc.server(singletonThreadPool(max_workers=10))
     addToServer(server)
