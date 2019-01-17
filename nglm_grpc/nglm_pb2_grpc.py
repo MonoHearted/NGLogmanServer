@@ -73,10 +73,10 @@ class LoggingStub(object):
     Args:
       channel: A grpc.Channel.
     """
-    self.start = channel.unary_unary(
+    self.start = channel.unary_stream(
         '/nglm_grpc.Logging/start',
         request_serializer=nglm__grpc_dot_nglm__pb2.params.SerializeToString,
-        response_deserializer=nglm__grpc_dot_nglm__pb2.response.FromString,
+        response_deserializer=nglm__grpc_dot_nglm__pb2.chunks.FromString,
         )
 
 
@@ -94,10 +94,10 @@ class LoggingServicer(object):
 
 def add_LoggingServicer_to_server(servicer, server):
   rpc_method_handlers = {
-      'start': grpc.unary_unary_rpc_method_handler(
+      'start': grpc.unary_stream_rpc_method_handler(
           servicer.start,
           request_deserializer=nglm__grpc_dot_nglm__pb2.params.FromString,
-          response_serializer=nglm__grpc_dot_nglm__pb2.response.SerializeToString,
+          response_serializer=nglm__grpc_dot_nglm__pb2.chunks.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

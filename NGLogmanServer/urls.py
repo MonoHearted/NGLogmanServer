@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 import time
-import sys
+import os,sys
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -43,7 +43,13 @@ if 'runserver' in sys.argv:
     # Health check testing, wait for clients to connect
     time.sleep(10)
     availableNodes = checkNodes(LGNode.objects.all())
-    print('Available nodes: ' + ', '.join(availableNodes))
-    
-    print(startLogging(LGNode.objects.all()))
+
+    nodestr = 'Available nodes: '
+    for node in availableNodes:
+        nodestr = nodestr + str(node)
+        if(node != availableNodes[-1]):
+            nodestr = nodestr + ', '
+    print(nodestr)
+
+    startLogging(availableNodes)
 

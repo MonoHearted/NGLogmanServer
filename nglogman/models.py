@@ -12,7 +12,7 @@ class LGNode(models.Model):
     nodeUUID = models.UUIDField(primary_key=True,default=uuid.uuid4(),null=False,editable=True)
 
     def __str__(self):
-        return self.hostname
+        return str(self.ip) + ":" + str(self.port)
 
     class Meta:
         verbose_name = 'Logman Node'

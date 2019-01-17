@@ -1,4 +1,6 @@
 import grpc
+import datetime
+import os, sys
 
 from . import nglm_pb2
 from . import nglm_pb2_grpc
@@ -42,11 +44,16 @@ def checkNodes(nodes):
         try:
             channel = grpc.insecure_channel(nodeAddress)
             nglm_pb2_grpc.ServerStub(channel).isAlive(nglm_pb2.query(query=''))
-            availableNodes.append(nodeAddress)
+            availableNodes.append(node)
             channel.close()
         except:
             continue
     return availableNodes
+
+def saveResponse(chunks, path):
+    with open(path, 'wb') as f:
+        for chunk in chunks:
+            f.write(chunk.buffer)
 
 def startLogging(nodes):
     for node in nodes:
@@ -55,7 +62,13 @@ def startLogging(nodes):
             channel = grpc.insecure_channel(nodeAddress)
             stub = nglm_pb2_grpc.LoggingStub(channel)
             params = nglm_pb2.params(pname='httpd',interval=2,duration=4)
-            stub.start(params)
+
+            response = stub.start(params)
+            resTime = str(datetime.datetime.now())
+            saveResponse(response, os.path.join(
+                    os.path.dirname(sys.modules['__main__'].__file__),
+                    "Output",
+                    node.hostname + '_' + resTime.replace(':', '-').replace('.', '_') + '_result.xls'))
         except:
             raise
 

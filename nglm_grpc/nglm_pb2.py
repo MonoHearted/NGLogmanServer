@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='nglm_grpc',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x14nglm_grpc/nglm.proto\x12\tnglm_grpc\":\n\nclientInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\x0c\n\x04ipv4\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\"\x1b\n\x08response\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x16\n\x05query\x12\r\n\x05query\x18\x01 \x01(\t\"H\n\x06params\x12\x0b\n\x03pid\x18\x01 \x01(\x05\x12\r\n\x05pname\x18\x02 \x01(\t\x12\x10\n\x08interval\x18\x03 \x01(\x05\x12\x10\n\x08\x64uration\x18\x04 \x01(\x05\x32v\n\x06Server\x12\x38\n\x08register\x12\x15.nglm_grpc.clientInfo\x1a\x13.nglm_grpc.response\"\x00\x12\x32\n\x07isAlive\x12\x10.nglm_grpc.query\x1a\x13.nglm_grpc.response\"\x00\x32<\n\x07Logging\x12\x31\n\x05start\x12\x11.nglm_grpc.params\x1a\x13.nglm_grpc.response\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x14nglm_grpc/nglm.proto\x12\tnglm_grpc\":\n\nclientInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\x0c\n\x04ipv4\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\"\x1b\n\x08response\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x16\n\x05query\x12\r\n\x05query\x18\x01 \x01(\t\"H\n\x06params\x12\x0b\n\x03pid\x18\x01 \x01(\x05\x12\r\n\x05pname\x18\x02 \x01(\t\x12\x10\n\x08interval\x18\x03 \x01(\x05\x12\x10\n\x08\x64uration\x18\x04 \x01(\x05\"\x18\n\x06\x63hunks\x12\x0e\n\x06\x62uffer\x18\x01 \x01(\x0c\x32v\n\x06Server\x12\x38\n\x08register\x12\x15.nglm_grpc.clientInfo\x1a\x13.nglm_grpc.response\"\x00\x12\x32\n\x07isAlive\x12\x10.nglm_grpc.query\x1a\x13.nglm_grpc.response\"\x00\x32<\n\x07Logging\x12\x31\n\x05start\x12\x11.nglm_grpc.params\x1a\x11.nglm_grpc.chunks\"\x00\x30\x01\x62\x06proto3')
 )
 
 
@@ -183,10 +183,42 @@ _PARAMS = _descriptor.Descriptor(
   serialized_end=220,
 )
 
+
+_CHUNKS = _descriptor.Descriptor(
+  name='chunks',
+  full_name='nglm_grpc.chunks',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='buffer', full_name='nglm_grpc.chunks.buffer', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=222,
+  serialized_end=246,
+)
+
 DESCRIPTOR.message_types_by_name['clientInfo'] = _CLIENTINFO
 DESCRIPTOR.message_types_by_name['response'] = _RESPONSE
 DESCRIPTOR.message_types_by_name['query'] = _QUERY
 DESCRIPTOR.message_types_by_name['params'] = _PARAMS
+DESCRIPTOR.message_types_by_name['chunks'] = _CHUNKS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 clientInfo = _reflection.GeneratedProtocolMessageType('clientInfo', (_message.Message,), dict(
@@ -217,6 +249,13 @@ params = _reflection.GeneratedProtocolMessageType('params', (_message.Message,),
   ))
 _sym_db.RegisterMessage(params)
 
+chunks = _reflection.GeneratedProtocolMessageType('chunks', (_message.Message,), dict(
+  DESCRIPTOR = _CHUNKS,
+  __module__ = 'nglm_grpc.nglm_pb2'
+  # @@protoc_insertion_point(class_scope:nglm_grpc.chunks)
+  ))
+_sym_db.RegisterMessage(chunks)
+
 
 
 _SERVER = _descriptor.ServiceDescriptor(
@@ -225,8 +264,8 @@ _SERVER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=222,
-  serialized_end=340,
+  serialized_start=248,
+  serialized_end=366,
   methods=[
   _descriptor.MethodDescriptor(
     name='register',
@@ -258,8 +297,8 @@ _LOGGING = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=1,
   serialized_options=None,
-  serialized_start=342,
-  serialized_end=402,
+  serialized_start=368,
+  serialized_end=428,
   methods=[
   _descriptor.MethodDescriptor(
     name='start',
@@ -267,7 +306,7 @@ _LOGGING = _descriptor.ServiceDescriptor(
     index=0,
     containing_service=None,
     input_type=_PARAMS,
-    output_type=_RESPONSE,
+    output_type=_CHUNKS,
     serialized_options=None,
   ),
 ])

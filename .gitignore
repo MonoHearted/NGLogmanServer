@@ -1,5 +1,6 @@
 logs/*
 .idea/*
+Output/*
 *.pyc
 *.sqlite3
 nglogman/migrations/*

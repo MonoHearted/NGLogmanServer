@@ -22,7 +22,7 @@ message query {
 }
 
 service Logging {
-	rpc start(params) returns (response) {}
+	rpc start(params) returns (stream chunks) {}
 }
 
 message params {
@@ -30,4 +30,8 @@ message params {
 	string pname = 2;
 	int32 interval = 3;
 	int32 duration = 4;
+}
+
+message chunks {
+	bytes buffer = 1;
 }
