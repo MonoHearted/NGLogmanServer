@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='nglm_grpc',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x14nglm_grpc/nglm.proto\x12\tnglm_grpc\":\n\nclientInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\x0c\n\x04ipv4\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\"\x1b\n\x08response\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\x42\n\x06Server\x12\x38\n\x08register\x12\x15.nglm_grpc.clientInfo\x1a\x13.nglm_grpc.response\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x14nglm_grpc/nglm.proto\x12\tnglm_grpc\":\n\nclientInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\x0c\n\x04ipv4\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\"\x1b\n\x08response\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x16\n\x05query\x12\r\n\x05query\x18\x01 \x01(\t\"H\n\x06params\x12\x0b\n\x03pid\x18\x01 \x01(\x05\x12\r\n\x05pname\x18\x02 \x01(\t\x12\x10\n\x08interval\x18\x03 \x01(\x05\x12\x10\n\x08\x64uration\x18\x04 \x01(\x05\x32v\n\x06Server\x12\x38\n\x08register\x12\x15.nglm_grpc.clientInfo\x1a\x13.nglm_grpc.response\"\x00\x12\x32\n\x07isAlive\x12\x10.nglm_grpc.query\x1a\x13.nglm_grpc.response\"\x00\x32<\n\x07Logging\x12\x31\n\x05start\x12\x11.nglm_grpc.params\x1a\x13.nglm_grpc.response\"\x00\x62\x06proto3')
 )
 
 
@@ -100,8 +100,93 @@ _RESPONSE = _descriptor.Descriptor(
   serialized_end=122,
 )
 
+
+_QUERY = _descriptor.Descriptor(
+  name='query',
+  full_name='nglm_grpc.query',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='query', full_name='nglm_grpc.query.query', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=124,
+  serialized_end=146,
+)
+
+
+_PARAMS = _descriptor.Descriptor(
+  name='params',
+  full_name='nglm_grpc.params',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='pid', full_name='nglm_grpc.params.pid', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='pname', full_name='nglm_grpc.params.pname', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='interval', full_name='nglm_grpc.params.interval', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='duration', full_name='nglm_grpc.params.duration', index=3,
+      number=4, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=148,
+  serialized_end=220,
+)
+
 DESCRIPTOR.message_types_by_name['clientInfo'] = _CLIENTINFO
 DESCRIPTOR.message_types_by_name['response'] = _RESPONSE
+DESCRIPTOR.message_types_by_name['query'] = _QUERY
+DESCRIPTOR.message_types_by_name['params'] = _PARAMS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 clientInfo = _reflection.GeneratedProtocolMessageType('clientInfo', (_message.Message,), dict(
@@ -118,6 +203,20 @@ response = _reflection.GeneratedProtocolMessageType('response', (_message.Messag
   ))
 _sym_db.RegisterMessage(response)
 
+query = _reflection.GeneratedProtocolMessageType('query', (_message.Message,), dict(
+  DESCRIPTOR = _QUERY,
+  __module__ = 'nglm_grpc.nglm_pb2'
+  # @@protoc_insertion_point(class_scope:nglm_grpc.query)
+  ))
+_sym_db.RegisterMessage(query)
+
+params = _reflection.GeneratedProtocolMessageType('params', (_message.Message,), dict(
+  DESCRIPTOR = _PARAMS,
+  __module__ = 'nglm_grpc.nglm_pb2'
+  # @@protoc_insertion_point(class_scope:nglm_grpc.params)
+  ))
+_sym_db.RegisterMessage(params)
+
 
 
 _SERVER = _descriptor.ServiceDescriptor(
@@ -126,8 +225,8 @@ _SERVER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=124,
-  serialized_end=190,
+  serialized_start=222,
+  serialized_end=340,
   methods=[
   _descriptor.MethodDescriptor(
     name='register',
@@ -138,9 +237,42 @@ _SERVER = _descriptor.ServiceDescriptor(
     output_type=_RESPONSE,
     serialized_options=None,
   ),
+  _descriptor.MethodDescriptor(
+    name='isAlive',
+    full_name='nglm_grpc.Server.isAlive',
+    index=1,
+    containing_service=None,
+    input_type=_QUERY,
+    output_type=_RESPONSE,
+    serialized_options=None,
+  ),
 ])
 _sym_db.RegisterServiceDescriptor(_SERVER)
 
 DESCRIPTOR.services_by_name['Server'] = _SERVER
+
+
+_LOGGING = _descriptor.ServiceDescriptor(
+  name='Logging',
+  full_name='nglm_grpc.Logging',
+  file=DESCRIPTOR,
+  index=1,
+  serialized_options=None,
+  serialized_start=342,
+  serialized_end=402,
+  methods=[
+  _descriptor.MethodDescriptor(
+    name='start',
+    full_name='nglm_grpc.Logging.start',
+    index=0,
+    containing_service=None,
+    input_type=_PARAMS,
+    output_type=_RESPONSE,
+    serialized_options=None,
+  ),
+])
+_sym_db.RegisterServiceDescriptor(_LOGGING)
+
+DESCRIPTOR.services_by_name['Logging'] = _LOGGING
 
 # @@protoc_insertion_point(module_scope)

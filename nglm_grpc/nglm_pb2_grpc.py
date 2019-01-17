@@ -19,6 +19,11 @@ class ServerStub(object):
         request_serializer=nglm__grpc_dot_nglm__pb2.clientInfo.SerializeToString,
         response_deserializer=nglm__grpc_dot_nglm__pb2.response.FromString,
         )
+    self.isAlive = channel.unary_unary(
+        '/nglm_grpc.Server/isAlive',
+        request_serializer=nglm__grpc_dot_nglm__pb2.query.SerializeToString,
+        response_deserializer=nglm__grpc_dot_nglm__pb2.response.FromString,
+        )
 
 
 class ServerServicer(object):
@@ -26,6 +31,13 @@ class ServerServicer(object):
   pass
 
   def register(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def isAlive(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -40,7 +52,54 @@ def add_ServerServicer_to_server(servicer, server):
           request_deserializer=nglm__grpc_dot_nglm__pb2.clientInfo.FromString,
           response_serializer=nglm__grpc_dot_nglm__pb2.response.SerializeToString,
       ),
+      'isAlive': grpc.unary_unary_rpc_method_handler(
+          servicer.isAlive,
+          request_deserializer=nglm__grpc_dot_nglm__pb2.query.FromString,
+          response_serializer=nglm__grpc_dot_nglm__pb2.response.SerializeToString,
+      ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
       'nglm_grpc.Server', rpc_method_handlers)
+  server.add_generic_rpc_handlers((generic_handler,))
+
+
+class LoggingStub(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def __init__(self, channel):
+    """Constructor.
+
+    Args:
+      channel: A grpc.Channel.
+    """
+    self.start = channel.unary_unary(
+        '/nglm_grpc.Logging/start',
+        request_serializer=nglm__grpc_dot_nglm__pb2.params.SerializeToString,
+        response_deserializer=nglm__grpc_dot_nglm__pb2.response.FromString,
+        )
+
+
+class LoggingServicer(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def start(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+
+def add_LoggingServicer_to_server(servicer, server):
+  rpc_method_handlers = {
+      'start': grpc.unary_unary_rpc_method_handler(
+          servicer.start,
+          request_deserializer=nglm__grpc_dot_nglm__pb2.params.FromString,
+          response_serializer=nglm__grpc_dot_nglm__pb2.response.SerializeToString,
+      ),
+  }
+  generic_handler = grpc.method_handlers_generic_handler(
+      'nglm_grpc.Logging', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))

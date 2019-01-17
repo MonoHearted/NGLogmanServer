@@ -31,7 +31,7 @@ if 'runserver' in sys.argv:
     import grpc
 
     from nglm_grpc.modules.Utility import singletonThreadPool
-    from nglm_grpc.gRPCMethods import addToServer, checkNodes
+    from nglm_grpc.gRPCMethods import addToServer, checkNodes, startLogging
     from nglogman.models import LGNode
 
     server = grpc.server(singletonThreadPool(max_workers=10))
@@ -44,4 +44,6 @@ if 'runserver' in sys.argv:
     time.sleep(10)
     availableNodes = checkNodes(LGNode.objects.all())
     print('Available nodes: ' + ', '.join(availableNodes))
+    
+    print(startLogging(LGNode.objects.all()))
 

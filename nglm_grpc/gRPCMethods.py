@@ -23,6 +23,11 @@ class ServerServicer(nglm_pb2_grpc.ServerServicer):
             res.success = False
         return res
 
+    def isAlive(self, request, context):
+        res = nglm_pb2.response()
+        res.success = True
+        return res
+
 
 def addToServer(server):
     # Adds services to server, called on server start
@@ -36,10 +41,21 @@ def checkNodes(nodes):
         nodeAddress = node.ip + ':' + str(node.port)
         try:
             channel = grpc.insecure_channel(nodeAddress)
-        except:
-            continue
-        else:
+            nglm_pb2_grpc.ServerStub(channel).isAlive(nglm_pb2.query(query=''))
             availableNodes.append(nodeAddress)
             channel.close()
+        except:
+            continue
     return availableNodes
+
+def startLogging(nodes):
+    for node in nodes:
+        nodeAddress = node.ip + ':' + str(node.port)
+        try:
+            channel = grpc.insecure_channel(nodeAddress)
+            stub = nglm_pb2_grpc.LoggingStub(channel)
+            params = nglm_pb2.params(pname='httpd',interval=2,duration=4)
+            stub.start(params)
+        except:
+            raise
 

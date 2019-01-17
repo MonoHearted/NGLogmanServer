@@ -4,6 +4,7 @@ package nglm_grpc;
 
 service Server {
 	rpc register(clientInfo) returns (response) {}
+	rpc isAlive(query) returns (response) {}
 }
 
 message clientInfo {
@@ -14,4 +15,19 @@ message clientInfo {
 
 message response {
 	bool success = 1;
+}
+
+message query {
+	string query = 1;
+}
+
+service Logging {
+	rpc start(params) returns (response) {}
+}
+
+message params {
+	int32 pid = 1;
+	string pname = 2;
+	int32 interval = 3;
+	int32 duration = 4;
 }
