@@ -48,7 +48,13 @@ def checkNodes(nodes):
             channel.close()
         except:
             continue
+    updateNodes(availableNodes)
     return availableNodes
+
+def updateNodes(nodes):
+    LGNode.objects.all().update(available=False)
+    for node in nodes:
+        LGNode.objects.filter(ip__iexact=node.ip).update(available=True)
 
 def saveResponse(chunks, path):
     with open(path, 'wb') as f:

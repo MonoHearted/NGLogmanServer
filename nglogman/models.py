@@ -9,6 +9,7 @@ class LGNode(models.Model):
     ip = models.GenericIPAddressField()
     port = models.IntegerField(default=50051)
     comments = models.TextField(default='')
+    available = models.BooleanField(default=False)
     nodeUUID = models.UUIDField(primary_key=True,default=uuid.uuid4(),null=False,editable=True)
 
     def __str__(self):
