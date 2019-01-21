@@ -1,7 +1,6 @@
 from django.db import models
 import uuid
 
-
 class LGNode(models.Model):
     """
     A data model map a task entity to db

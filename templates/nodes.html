@@ -4,6 +4,27 @@
 List of Available Nodes
 {% endblock titleheader %}
 
+{% block navitems %}
+<li class="nav-item">
+<a class="nav-link" href="dashboard">
+  <span data-feather="home"></span>
+  Dashboard
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="tasks">
+  <span data-feather="clipboard"></span>
+  Tasks
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link active" href="nodes">
+  <span data-feather="git-commit"></span>
+  Nodes <span class="sr-only">(current)</span>
+</a>
+</li>
+{% endblock navitems %}
+
 {% block toggleButton %}
 <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseOffline" aria-expanded="false" aria-controls="collapseOffline">Toggle Offline</button>
 <form action="#" method="get">
@@ -15,7 +36,7 @@ List of Available Nodes
 <div class="accordion" id="contentAccordion">
 {% if offline_node_set %}
 {% for node in available_node_set %}
-    <div class="card">
+    <div class="card border-success">
         <div class="card-header" id="heading-{{forloop.counter}}">
             <h2 class="mb-0">
                 <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-{{forloop.counter}}">
@@ -34,7 +55,7 @@ List of Available Nodes
     {% endfor %}
     <div class="collapse" id="collapseOffline">
         {% for node in offline_node_set %}
-        <div class="card">
+        <div class="card border-danger">
             <div class="card-header" id="heading-offline-{{forloop.counter}}">
                 <h2 class="mb-0">
                     <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-offline-{{forloop.counter}}" aria-expanded="false" aria-controls="collapse-offline-{{forloop.counter}}">

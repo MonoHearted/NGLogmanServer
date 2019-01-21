@@ -4,15 +4,33 @@
 Dashboard
 {% endblock titleheader %}
 
-{% block toggleButton %}
-{% endblock toggleButton %}
+{% block navitems %}
+<li class="nav-item">
+<a class="nav-link active" href="dashboard">
+  <span data-feather="home"></span>
+  Dashboard <span class="sr-only">(current)</span>
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="tasks">
+  <span data-feather="clipboard"></span>
+  Tasks
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="nodes">
+  <span data-feather="git-commit"></span>
+  Nodes
+</a>
+</li>
+{% endblock navitems %}
 
 {% block content_accordion %}
 <div class="accordion" id="nodeAccordion">
-    <h3>Nodes:</h3>
+    <h3>Available Nodes:</h3>
 {% if available_node_set %}
 {% for node in available_node_set %}
-    <div class="card">
+    <div class="card border-success">
         <div class="card-header" id="heading-{{forloop.counter}}">
             <h2 class="mb-0">
                 <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-{{forloop.counter}}">
@@ -37,7 +55,7 @@ Dashboard
 </div>
 <br/>
 <div class="accordion" id="taskAccordion">
-    <h3>Tasks:</h3>
+    <h3>Scheduled Tasks:</h3>
 {% if task_set %}
 {% for task in task_set %}
     <div class="card">

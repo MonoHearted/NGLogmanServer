@@ -76,8 +76,8 @@ body {
   }
 }
 
-.accordion {
-    border-bottom-width: 1px;
+.accordion .card .card-header {
+    margin-bottom: 0;
 }
 
 /*
