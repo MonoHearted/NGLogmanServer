@@ -1,7 +1,10 @@
 from django.urls import path
 from . import views
+from django.http import HttpResponseRedirect
 
 urlpatterns = [
-    path('', views.TaskListView.as_view(), name='home'),
-    path('nodes', views.NodeListView.as_view(), name='nodes'),
+    path('', lambda r: HttpResponseRedirect('dashboard')),
+    path('dashboard', views.DashboardView, name='dashboard'),
+    path('tasks', views.TaskListView, name='tasks'),
+    path('nodes', views.NodeListView, name='nodes'),
 ]

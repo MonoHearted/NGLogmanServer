@@ -1,48 +1,110 @@
-
 body {
-    font-family: 'Source Sans Pro', sans-serif;
-    font-size: 18px;
+  font-size: .875rem;
 }
 
-header {
-    border-bottom: 1px solid #999;
-    margin-bottom: 2rem;
-    display: flex;
+.feather {
+  width: 16px;
+  height: 16px;
+  vertical-align: text-bottom;
 }
 
-header h1 a {
-    color: darkcyan;
-    text-decoration: none;
+/*
+ * Sidebar
+ */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100; /* Behind the navbar */
+  padding: 48px 0 0; /* Height of navbar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
 
-.nav-left {
-    margin-right: auto;
+.sidebar-sticky {
+  position: relative;
+  top: 0;
+  height: calc(100vh - 48px);
+  padding-top: .5rem;
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
 
-.nav-right {
-    display: flex;
-    padding-top: 2rem;
+@supports ((position: -webkit-sticky) or (position: sticky)) {
+  .sidebar-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+  }
 }
 
-.task-entry {
-    margin-bottom: 2rem;
+.sidebar .nav-link {
+  font-weight: 500;
+  color: #333;
 }
 
-.task-entry h2 {
-    margin: 0.5rem 0;
+.sidebar .nav-link .feather {
+  margin-right: 4px;
+  color: #999;
 }
 
-.task-entry h2 a,
-.task-entry h2 a:visited {
-    color: lightblue;
-    text-decoration: none;
+.sidebar .nav-link.active {
+  color: #007bff;
 }
 
-.task-entry p {
-    margin: 0;
-    font-weight: 400;
+.sidebar .nav-link:hover .feather,
+.sidebar .nav-link.active .feather {
+  color: inherit;
 }
 
-.task-entry h2 a:hover {
-color: darkslategrey;
+.sidebar-heading {
+  font-size: .75rem;
+  text-transform: uppercase;
+}
+
+/*
+ * Content
+ */
+
+[role="main"] {
+  padding-top: 133px; /* Space for fixed navbar */
+}
+
+@media (min-width: 768px) {
+  [role="main"] {
+    padding-top: 48px; /* Space for fixed navbar */
+  }
+}
+
+.accordion {
+    border-bottom-width: 1px;
+}
+
+/*
+ * Navbar
+ */
+
+.navbar-brand {
+  padding-top: .75rem;
+  padding-bottom: .75rem;
+  font-size: 1rem;
+  background-color: rgba(0, 0, 0, .25);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+}
+
+.navbar .form-control {
+  padding: .75rem 1rem;
+  border-width: 0;
+  border-radius: 0;
+}
+
+.form-control-dark {
+  color: #fff;
+  background-color: rgba(255, 255, 255, .1);
+  border-color: rgba(255, 255, 255, .1);
+}
+
+.form-control-dark:focus {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }

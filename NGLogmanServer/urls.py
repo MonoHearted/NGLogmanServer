@@ -16,7 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 import time
-import os,sys
+import os
+import sys
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,16 +41,17 @@ if 'runserver' in sys.argv:
     server.start()
     print('gRPC server now listening on port 50051\n')
 
+    checkNodes(LGNode.objects.all())
+
     # Health check testing, wait for clients to connect
-    time.sleep(10)
-    availableNodes = checkNodes(LGNode.objects.all())
-
-    nodestr = 'Available nodes: '
-    for node in availableNodes:
-        nodestr = nodestr + str(node)
-        if(node != availableNodes[-1]):
-            nodestr = nodestr + ', '
-    print(nodestr)
-
-    startLogging(availableNodes)
-
+    # time.sleep(10)
+    # availableNodes = checkNodes(LGNode.objects.all())
+    #
+    # nodestr = 'Available nodes: '
+    # for node in availableNodes:
+    #     nodestr = nodestr + str(node)
+    #     if(node != availableNodes[-1]):
+    #         nodestr = nodestr + ', '
+    # print(nodestr)
+    #
+    # startLogging(availableNodes)
