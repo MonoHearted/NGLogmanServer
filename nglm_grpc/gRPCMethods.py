@@ -89,7 +89,8 @@ def saveResponse(chunks, path):
 
 def startLogging(nodes, task=None):
     if task is not None:
-        Task.objects.filter(taskUUID=task.taskUUID).delete()
+        Task.objects.filter(taskUUID=task.taskUUID).update(
+            status="In Progress")
 
     for node in nodes:
         nodeAddress = node.ip + ':' + str(node.port)
@@ -104,6 +105,10 @@ def startLogging(nodes, task=None):
                     os.path.dirname(sys.modules['__main__'].__file__),
                     "Output",
                     node.hostname + '_' + str(task.taskUUID) + '_result.xls'))
+
+            if task is not None:
+                Task.objects.filter(taskUUID=task.taskUUID).update(
+                    status="Completed")
         except:
             print(str(node) + ' was not available for task.')
             continue

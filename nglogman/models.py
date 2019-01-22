@@ -27,6 +27,8 @@ class Task(models.Model):
         'auth.User',
         on_delete=models.CASCADE,
     )
+    status = models.CharField(max_length=20,
+                              editable=False, default='Scheduled')
     assignedNode = models.ForeignKey(LGNode, on_delete=models.CASCADE)
     createTime = models.DateTimeField(auto_now=True)
     startTime = models.DateTimeField(null=False)

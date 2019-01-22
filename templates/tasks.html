@@ -28,28 +28,73 @@ Upcoming Tasks
 {% block content_accordion %}
 <div class="accordion" id="contentAccordion">
 {% if task_set %}
-{% for task in task_set %}
-    <div class="card">
-        <div class="card-header" id="heading-{{forloop.counter}}">
-            <h2 class="mb-0">
-                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-{{forloop.counter}}">
-                    {{task.taskName}}
-                </button>
-            </h2>
-        </div>
-        <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}" data-parent="#contentAccordion">
-            <div class="card-body">
-                Creation Time: {{task.createTime}} <br/>
-                Start Time: {{task.startTime}} <br/>
-                Task UUID: {{task.taskUUID}} <br/>
+    {% for task in scheduled_tasks %}
+        <div class="card border-success">
+            <div class="card-header" id="heading-{{forloop.counter}}">
+                <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-{{forloop.counter}}">
+                        {{task.taskName}}
+                    </button>
+                </h2>
+            </div>
+            <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}" data-parent="#contentAccordion">
+                <div class="card-body">
+                    Status: {{task.status}} <br/>
+                    Creation Time: {{task.createTime}} <br/>
+                    Start Time: {{task.startTime}} <br/>
+                    Task UUID: {{task.taskUUID}} <br/>
+                </div>
             </div>
         </div>
-    </div>
+    {% endfor %}
+    {% for task in in_progress %}
+        <div class="card border-warning">
+            <div class="card-header" id="heading-prog{{forloop.counter}}">
+                <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-prog{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-prog{{forloop.counter}}">
+                        {{task.taskName}}
+                    </button>
+                </h2>
+            </div>
+            <div id="collapse-prog{{forloop.counter}}" class="collapse" aria-labelledby="heading-prog{{forloop.counter}}" data-parent="#contentAccordion">
+                <div class="card-body">
+                    Status: {{task.status}} <br/>
+                    Creation Time: {{task.createTime}} <br/>
+                    Start Time: {{task.startTime}} <br/>
+                    Task UUID: {{task.taskUUID}} <br/>
+                </div>
+            </div>
+        </div>
     {% endfor %}
 {% else %}
     <div class="alert alert-danger" role="alert">
-        There are no tasks to display.
+        There are no upcoming tasks.
     </div>
 {% endif %}
 </div>
+{% if completed_tasks %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <hl class="h2">Completed Tasks</hl>
+</div>
+    {% for task in completed_tasks %}
+        <div class="card">
+            <div class="card-header" id="heading-comp{{forloop.counter}}">
+                <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-comp{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-comp{{forloop.counter}}">
+                        {{task.taskName}}
+                    </button>
+                </h2>
+            </div>
+            <div id="collapse-comp{{forloop.counter}}" class="collapse" aria-labelledby="heading-comp{{forloop.counter}}" data-parent="#contentAccordion">
+                <div class="card-body">
+                    Status: {{task.status}} <br/>
+                    Download: <a href="Output/{{task.assignedNode.hostname}}_{{task.taskUUID}}_result.xls" target="_blank">perflog</a><br/>
+                    Creation Time: {{task.createTime}} <br/>
+                    Start Time: {{task.startTime}} <br/>
+                    Task UUID: {{task.taskUUID}} <br/>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
 {% endblock content_accordion %}
