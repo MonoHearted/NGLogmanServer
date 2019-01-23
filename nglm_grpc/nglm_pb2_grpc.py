@@ -78,6 +78,16 @@ class LoggingStub(object):
         request_serializer=nglm__grpc_dot_nglm__pb2.params.SerializeToString,
         response_deserializer=nglm__grpc_dot_nglm__pb2.chunks.FromString,
         )
+    self.getConfig = channel.unary_stream(
+        '/nglm_grpc.Logging/getConfig',
+        request_serializer=nglm__grpc_dot_nglm__pb2.chunkSize.SerializeToString,
+        response_deserializer=nglm__grpc_dot_nglm__pb2.chunks.FromString,
+        )
+    self.setConfig = channel.stream_unary(
+        '/nglm_grpc.Logging/setConfig',
+        request_serializer=nglm__grpc_dot_nglm__pb2.chunks.SerializeToString,
+        response_deserializer=nglm__grpc_dot_nglm__pb2.response.FromString,
+        )
 
 
 class LoggingServicer(object):
@@ -91,6 +101,20 @@ class LoggingServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def getConfig(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def setConfig(self, request_iterator, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_LoggingServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -98,6 +122,16 @@ def add_LoggingServicer_to_server(servicer, server):
           servicer.start,
           request_deserializer=nglm__grpc_dot_nglm__pb2.params.FromString,
           response_serializer=nglm__grpc_dot_nglm__pb2.chunks.SerializeToString,
+      ),
+      'getConfig': grpc.unary_stream_rpc_method_handler(
+          servicer.getConfig,
+          request_deserializer=nglm__grpc_dot_nglm__pb2.chunkSize.FromString,
+          response_serializer=nglm__grpc_dot_nglm__pb2.chunks.SerializeToString,
+      ),
+      'setConfig': grpc.stream_unary_rpc_method_handler(
+          servicer.setConfig,
+          request_deserializer=nglm__grpc_dot_nglm__pb2.chunks.FromString,
+          response_serializer=nglm__grpc_dot_nglm__pb2.response.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

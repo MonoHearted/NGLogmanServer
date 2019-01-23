@@ -36,7 +36,11 @@ List of Available Nodes
 <div class="accordion" id="contentAccordion">
 {% if offline_node_set %}
 {% for node in available_node_set %}
+    {% if node.status == 'Busy' %}
+    <div class="card border-warning">
+    {% else %}
     <div class="card border-success">
+    {% endif %}
         <div class="card-header" id="heading-{{forloop.counter}}">
             <h2 class="mb-0">
                 <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-{{forloop.counter}}">
@@ -46,9 +50,16 @@ List of Available Nodes
         </div>
         <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}" data-parent="#contentAccordion">
             <div class="card-body">
-                Status: {% if node.available %} Available {% else %} Offline {% endif %}<br/>
+                Status: {{node.status}}<br/>
+                {% if node.status == 'Busy' %}
+                Task ID: {{node.currentTask}}<br/>
+                {% endif %}
                 IP Address: {{node.ip}}<br/>
-                Port: {{node.port}}<br/>
+                Access Port: {{node.port}}<br/>
+                UUID: {{node.nodeUUID}}<br/>
+                {% if node.comments != '' %}
+                Comments: node.comments
+                {% endif %}
             </div>
         </div>
     </div>
@@ -65,9 +76,13 @@ List of Available Nodes
             </div>
             <div id="collapse-offline-{{forloop.counter}}" class="collapse" aria-labelledby="heading-offline-{{forloop.counter}}" data-parent="#contentAccordion">
                 <div class="card-body">
-                    Status: {% if node.available %} Available {% else %} Offline {% endif %}<br/>
+                    Status: {{node.status}}<br/>
                     IP Address: {{node.ip}}<br/>
-                    Port: {{node.port}}<br/>
+                    Access Port: {{node.port}}<br/>
+                    UUID: {{node.nodeUUID}}<br/>
+                    {% if node.comments != '' %}
+                    Comments: node.comments
+                    {% endif %}
                 </div>
             </div>
         </div>

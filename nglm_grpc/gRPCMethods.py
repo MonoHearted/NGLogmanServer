@@ -7,6 +7,7 @@ from . import nglm_pb2
 from . import nglm_pb2_grpc
 from nglogman.models import LGNode, Task
 
+TIMEOUT_SECONDS = 2
 
 class ServerServicer(nglm_pb2_grpc.ServerServicer):
     def register(self, request, context):
@@ -27,6 +28,7 @@ class ServerServicer(nglm_pb2_grpc.ServerServicer):
                 print('Returning node. Hostname: ' +
                       request.hostname + ' IP: ' + request.ipv4 +
                       ' Host Port:' + str(request.port))
+            checkNodes(LGNode.objects.all())
             res.success = True
         except:
             res.success = False
@@ -51,14 +53,17 @@ def checkNodes(nodes):
     for node in nodes:
         nodeAddress = node.ip + ':' + str(node.port)
         try:
+            print('checking: %s' % node)
             channel = grpc.insecure_channel(nodeAddress)
-            nglm_pb2_grpc.ServerStub(channel).isAlive(nglm_pb2.query(query=''))
+            nglm_pb2_grpc.ServerStub(channel)\
+                .isAlive(nglm_pb2.query(query=''), timeout=TIMEOUT_SECONDS)
+            print('checked: %s' % node)
             availableNodes.append(node)
             channel.close()
         except:
             continue
     end = time.time()
-    print(end - start)
+    print('Available nodes updated. Elapsed: %.2fs' % (end - start))
     updateNodes(availableNodes)
     return availableNodes
 
@@ -72,13 +77,14 @@ def scheduleTask(task):
         run_date=task.startTime
     )
     scheduler.start()
-    print('Task with UUID ' + str(task.taskUUID) + ' scheduled.')
+    print('Task with UUID %s scheduled.' % task.taskUUID)
     return scheduler
 
 def updateNodes(nodes):
-    LGNode.objects.all().update(available=False)
+    LGNode.objects.exclude(status="Busy").update(status="Offline")
     for node in nodes:
-        LGNode.objects.filter(ip__iexact=node.ip).update(available=True)
+        LGNode.objects.exclude(status="Busy")\
+            .filter(ip__iexact=node.ip).update(status="Available")
 
 
 def saveResponse(chunks, path):
@@ -87,28 +93,44 @@ def saveResponse(chunks, path):
             f.write(chunk.buffer)
 
 
-def startLogging(nodes, task=None):
-    if task is not None:
-        Task.objects.filter(taskUUID=task.taskUUID).update(
-            status="In Progress")
-
+def startLogging(nodes, task):
     for node in nodes:
         nodeAddress = node.ip + ':' + str(node.port)
         try:
             channel = grpc.insecure_channel(nodeAddress)
             stub = nglm_pb2_grpc.LoggingStub(channel)
-            params = nglm_pb2.params(pname='httpd', interval=2, duration=4)
+            itr = task.interval if task.interval else 2
+            dur = int(task.duration.total_seconds()) if task.duration else 4
+            params = nglm_pb2.params(pname='httpd', interval=itr, duration=dur)
 
             response = stub.start(params)
+            Task.objects.filter(taskUUID=task.taskUUID).update(
+                status="In Progress")
+            LGNode.objects.filter(nodeUUID=node.nodeUUID).update(
+                status="Busy", currentTask=task.taskUUID)
             resTime = str(datetime.datetime.now())
             saveResponse(response, os.path.join(
                     os.path.dirname(sys.modules['__main__'].__file__),
                     "Output",
                     node.hostname + '_' + str(task.taskUUID) + '_result.xls'))
 
-            if task is not None:
-                Task.objects.filter(taskUUID=task.taskUUID).update(
-                    status="Completed")
-        except:
+            Task.objects.filter(taskUUID=task.taskUUID).update(
+                status="Completed")
+            LGNode.objects.filter(nodeUUID=node.nodeUUID).update(
+                status="Available", currentTask=None)
+        except Exception as e:
+            Task.objects.filter(taskUUID=task.taskUUID).update(
+                status="Failed: %s" % e)
             print(str(node) + ' was not available for task.')
             continue
+
+def getConfig(node, size=1):
+    nodeAddress = node.ip + ':' + node.port
+    channel = grpc.insecure_channel(nodeAddress)
+    stub = nglm_pb2_grpc.LoggingStub(channel)
+    params = nglm_pb2.chunkSize(size=size)
+
+    response = stub.getConfig(params)
+    saveResponse(response, os.path.join(
+        os.path.dirname(sys.modules['__main__'].__file__),
+        "nodeConfigs", node.nodeUUID + '_config.ini'))

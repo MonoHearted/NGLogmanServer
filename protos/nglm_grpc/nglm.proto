@@ -23,6 +23,12 @@ message query {
 
 service Logging {
 	rpc start(params) returns (stream chunks) {}
+	rpc getConfig(chunkSize) returns (stream chunks) {}
+	rpc setConfig(stream chunks) returns (response) {}
+}
+
+message chunkSize {
+	double size = 1;
 }
 
 message params {

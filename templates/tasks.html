@@ -61,6 +61,8 @@ Upcoming Tasks
                     Status: {{task.status}} <br/>
                     Creation Time: {{task.createTime}} <br/>
                     Start Time: {{task.startTime}} <br/>
+                    Duration: {{task.duration}} <br/>
+                    Interval: {{task.interval}}s <br/>
                     Task UUID: {{task.taskUUID}} <br/>
                 </div>
             </div>
@@ -74,7 +76,7 @@ Upcoming Tasks
 </div>
 {% if completed_tasks %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <hl class="h2">Completed Tasks</hl>
+    <h1 class="h2">Completed Tasks</h1>
 </div>
     {% for task in completed_tasks %}
         <div class="card">

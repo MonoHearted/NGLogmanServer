@@ -23,7 +23,7 @@ def TaskListView(request):
 def DashboardView(request):
     template = loader.get_template('dashboard.html')
     context = {
-        'available_node_set': LGNode.objects.filter(available=True),
+        'available_node_set': LGNode.objects.filter(status='Available'),
         'task_set': Task.objects.exclude(status='Completed')
     }
     return HttpResponse(template.render(context, request))
@@ -46,7 +46,7 @@ def NodeListView(request):
         return redirect('nodes')
     template = loader.get_template('nodes.html')
     context = {
-        'available_node_set': LGNode.objects.filter(available=True),
-        'offline_node_set': LGNode.objects.filter(available=False)
+        'available_node_set': LGNode.objects.exclude(status='Offline'),
+        'offline_node_set': LGNode.objects.filter(status='Offline')
     }
     return HttpResponse(template.render(context, request))

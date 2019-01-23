@@ -27,23 +27,13 @@ Dashboard
 
 {% block content_accordion %}
 <div class="accordion" id="nodeAccordion">
-    <h3>Available Nodes:</h3>
+    <h3>Available Nodes:
+        <a href="nodes"><font size="2">Details</font></a> </h3>
 {% if available_node_set %}
 {% for node in available_node_set %}
     <div class="card border-success">
         <div class="card-header" id="heading-{{forloop.counter}}">
-            <h2 class="mb-0">
-                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-{{forloop.counter}}">
-                    {{node.hostname}}
-                </button>
-            </h2>
-        </div>
-        <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}" data-parent="#contentAccordion">
-            <div class="card-body">
-                Status: {% if node.available %} Available {% else %} Offline {% endif %}<br/>
-                IP Address: {{node.ip}}<br/>
-                Port: {{node.port}}<br/>
-            </div>
+            {{node.hostname}} @ {{node.ip}}:{{node.port}}
         </div>
     </div>
     {% endfor %}
@@ -55,7 +45,8 @@ Dashboard
 </div>
 <br/>
 <div class="accordion" id="taskAccordion">
-    <h3>Scheduled Tasks:</h3>
+    <h3>Scheduled Tasks:
+    <a href="tasks"><font size="2">Details</font></a> </h3>
 {% if task_set %}
 {% for task in task_set %}
     <div class="card">

@@ -8,9 +8,11 @@ class LGNode(models.Model):
     hostname = models.CharField(max_length=200)
     ip = models.GenericIPAddressField()
     port = models.IntegerField(default=50051)
+    currentTask = models.UUIDField(null=True, editable=False)
     comments = models.TextField(default='')
-    available = models.BooleanField(default=False)
-    nodeUUID = models.UUIDField(primary_key=True, default=uuid.uuid4(),
+    status = models.CharField(max_length=20,
+                              editable=False, default='Offline')
+    nodeUUID = models.UUIDField(primary_key=True, default=uuid.uuid4,
                                 null=False, editable=True)
 
     def __str__(self):
