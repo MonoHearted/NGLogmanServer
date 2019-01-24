@@ -7,6 +7,10 @@ verify_ssl = true
 
 [packages]
 django = ">2.*"
+grpcio = "1.18"
+grpcio-tools = "1.18"
+apscheduler = ">3.5"
+netifaces = ">0.10"
 
 [requires]
 python_version = "3.7"
