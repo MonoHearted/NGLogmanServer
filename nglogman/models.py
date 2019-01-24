@@ -23,6 +23,16 @@ class LGNode(models.Model):
         verbose_name_plural = 'Logman Nodes'
 
 
+class NodeGroup(models.Model):
+    groupname = models.CharField(max_length=200)
+    currentTask = models.UUIDField(null=True, editable=False)
+    comments = models.TextField(default='', blank=True)
+    nodes = models.ManyToManyField(LGNode)
+
+    def __str__(self):
+        return self.groupname
+
+
 class Task(models.Model):
     taskName = models.CharField(max_length=200,null=False)
     owner = models.ForeignKey(
@@ -31,7 +41,8 @@ class Task(models.Model):
     )
     status = models.CharField(max_length=20,
                               editable=False, default='Scheduled')
-    assignedNode = models.ForeignKey(LGNode, on_delete=models.CASCADE)
+    assignedNode = models.ForeignKey(NodeGroup, on_delete=models.CASCADE,
+                                     name='Assigned Group')
     createTime = models.DateTimeField(auto_now=True)
     startTime = models.DateTimeField(null=False)
     duration = models.DurationField(null=False)

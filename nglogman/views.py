@@ -39,8 +39,8 @@ def outputDownload(request, document_root, path=''):
 
 
 def NodeListView(request):
+    from nglm_grpc.gRPCMethods import checkNodes
     if request.GET.get('refresh'):
-        from nglm_grpc.gRPCMethods import checkNodes
         print('checking nodes...')
         checkNodes(LGNode.objects.all())
         return redirect('nodes')

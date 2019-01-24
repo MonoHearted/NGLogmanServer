@@ -73,7 +73,7 @@ def scheduleTask(task):
     scheduler = BackgroundScheduler()
     scheduler.add_job(
         startLogging,
-        trigger='date', args=([task.assignedNode], task),
+        trigger='date', args=(task.assignedNode.all(), task),
         run_date=task.startTime
     )
     scheduler.start()
@@ -108,7 +108,6 @@ def startLogging(nodes, task):
                 status="In Progress")
             LGNode.objects.filter(nodeUUID=node.nodeUUID).update(
                 status="Busy", currentTask=task.taskUUID)
-            resTime = str(datetime.datetime.now())
             saveResponse(response, os.path.join(
                     os.path.dirname(sys.modules['__main__'].__file__),
                     "Output",
@@ -123,6 +122,7 @@ def startLogging(nodes, task):
                 status="Failed: %s" % e)
             print(str(node) + ' was not available for task.')
             continue
+
 
 def getConfig(node, size=1):
     nodeAddress = node.ip + ':' + node.port

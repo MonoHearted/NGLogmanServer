@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import LGNode, Task
+from .models import LGNode, Task, NodeGroup
 
 
 # Register your models here.
@@ -34,3 +34,6 @@ class TaskAdmin(admin.ModelAdmin):
         self.scheduler.shutdown(wait=False)
         print('scheduler shutdown')
         super().delete_model(request, obj)
+
+
+admin.site.register(NodeGroup)
