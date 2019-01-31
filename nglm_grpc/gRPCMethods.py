@@ -1,37 +1,43 @@
 import grpc
-import datetime
 import sys
 import os
+import uuid
+import re
+from openpyxl import Workbook, load_workbook
 
 from . import nglm_pb2
 from . import nglm_pb2_grpc
 from nglogman.models import LGNode, Task
 
 TIMEOUT_SECONDS = 2
+ROOT_DIR = os.path.dirname(sys.modules['__main__'].__file__)
 
 class ServerServicer(nglm_pb2_grpc.ServerServicer):
     def register(self, request, context):
-        res = nglm_pb2.response()
+        res = nglm_pb2.registerResponse()
         try:
             matchedNodes = LGNode.objects.filter(
                 hostname__iexact=request.hostname,
                 ip__iexact=request.ipv4
             )
             if matchedNodes.count() == 0:
+                res.uuid = request.uuid if request.uuid else str(uuid.uuid4())
                 LGNode.objects.create(hostname=request.hostname,
-                                      ip=request.ipv4, port=request.port)
+                                      ip=request.ipv4, port=request.port,
+                                      nodeUUID=uuid.UUID(res.uuid))
                 print('Registered new node. Hostname: ' +
                       request.hostname + ' IP: ' + request.ipv4 +
                       ' Host Port:' + str(request.port))
             else:
                 matchedNodes.update(port=request.port)
+                res.uuid = str(matchedNodes[0].nodeUUID)
                 print('Returning node. Hostname: ' +
                       request.hostname + ' IP: ' + request.ipv4 +
                       ' Host Port:' + str(request.port))
-            checkNodes(LGNode.objects.all())
             res.success = True
-        except:
+        except Exception as e:
             res.success = False
+            raise e
         return res
 
     def isAlive(self, request, context):
@@ -40,10 +46,60 @@ class ServerServicer(nglm_pb2_grpc.ServerServicer):
         return res
 
 
+class LoggingServicer(nglm_pb2_grpc.LoggingServicer):
+    def output(self, request, context):
+        res = nglm_pb2.response()
+        try:
+            metadata = context.invocation_metadata()
+            node_uuid = uuid.UUID(metadata[0].value)
+            node = LGNode.objects.filter(nodeUUID=node_uuid)[0]
+            task = Task.objects.filter(taskUUID=node.currentTask)[0]
+
+            saveResponse(request, os.path.join(
+                ROOT_DIR,
+                "Output", str(task.taskUUID),
+                node.hostname + '_' + str(task.taskUUID) + '_result.xlsx'))
+
+            Task.objects.filter(taskUUID=task.taskUUID).update(
+                status="Completed")
+            LGNode.objects.filter(nodeUUID=node.nodeUUID).update(
+                status="Available", currentTask=None)
+            res.success = True
+            validateTask(task)
+        except:
+            res.success = False
+        return res
+
+
 def addToServer(server):
     # Adds services to server, called on server start
     nglm_pb2_grpc.add_ServerServicer_to_server(ServerServicer(), server)
+    nglm_pb2_grpc.add_LoggingServicer_to_server(LoggingServicer(), server)
 
+
+def validateTask(task):
+    output_path = os.path.join(ROOT_DIR, "Output", str(task.taskUUID))
+    for node in task.assignedNode.nodes.all():
+        path = os.path.join(
+            output_path,
+            node.hostname + '_' + str(task.taskUUID) + '_result.xlsx'
+        )
+        if not os.path.isfile(path):
+            return False
+
+    res_path = os.path.join(output_path, 'overview.xlsx')
+    wb = Workbook()
+    for root, dirs, files in os.walk(output_path):
+        for f in files:
+            name = re.compile(r'(.*)_.*_(?:result.xlsx)').match(f).group(1)
+            wb.create_sheet(name, 0)
+            read_wb = load_workbook(os.path.join(root, f))
+            read_ws = read_wb.worksheets[0]
+            for row in read_ws:
+                for cell in row:
+                    wb.active[cell.coordinate].value = cell.value
+    del wb['Sheet']
+    wb.save(res_path)
 
 def checkNodes(nodes):
     # returns list of ip:port of available nodes
@@ -61,6 +117,17 @@ def checkNodes(nodes):
             availableNodes.append(node)
             channel.close()
         except:
+            uuidAttr = str(node.nodeUUID).replace('-', '_')
+            if hasattr(checkNodes, uuidAttr):
+                retries = getattr(checkNodes, uuidAttr)
+                if retries >= 10:
+                    LGNode.objects.filter(nodeUUID=node.uuid).delete()
+                    # Todo: Implement on_delete to remove assigned tasks
+                    delattr(checkNodes, uuidAttr)
+                else:
+                    setattr(checkNodes, uuidAttr, retries + 1)
+            else:
+                setattr(checkNodes, uuidAttr, 1)
             continue
     end = time.time()
     print('Available nodes updated. Elapsed: %.2fs' % (end - start))
@@ -71,14 +138,14 @@ def checkNodes(nodes):
 def scheduleTask(task):
     from apscheduler.schedulers.background import BackgroundScheduler
     scheduler = BackgroundScheduler()
-    scheduler.add_job(
+    job = scheduler.add_job(
         startLogging,
-        trigger='date', args=(task.assignedNode.all(), task),
-        run_date=task.startTime
+        trigger='date', args=(task.assignedNode.nodes.all(), task),
+        run_date=task.startTime, id=str(task.taskUUID)
     )
     scheduler.start()
     print('Task with UUID %s scheduled.' % task.taskUUID)
-    return scheduler
+    return scheduler, job
 
 def updateNodes(nodes):
     LGNode.objects.exclude(status="Busy").update(status="Offline")
@@ -88,9 +155,11 @@ def updateNodes(nodes):
 
 
 def saveResponse(chunks, path):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'wb') as f:
         for chunk in chunks:
             f.write(chunk.buffer)
+        print('saved to %s' % path)
 
 
 def startLogging(nodes, task):
@@ -104,19 +173,11 @@ def startLogging(nodes, task):
             params = nglm_pb2.params(pname='httpd', interval=itr, duration=dur)
 
             response = stub.start(params)
+            task.assignedNode.update(currentTask=task.taskUUID)
             Task.objects.filter(taskUUID=task.taskUUID).update(
                 status="In Progress")
             LGNode.objects.filter(nodeUUID=node.nodeUUID).update(
                 status="Busy", currentTask=task.taskUUID)
-            saveResponse(response, os.path.join(
-                    os.path.dirname(sys.modules['__main__'].__file__),
-                    "Output",
-                    node.hostname + '_' + str(task.taskUUID) + '_result.xls'))
-
-            Task.objects.filter(taskUUID=task.taskUUID).update(
-                status="Completed")
-            LGNode.objects.filter(nodeUUID=node.nodeUUID).update(
-                status="Available", currentTask=None)
         except Exception as e:
             Task.objects.filter(taskUUID=task.taskUUID).update(
                 status="Failed: %s" % e)

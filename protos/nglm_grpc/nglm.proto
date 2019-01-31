@@ -3,7 +3,7 @@ syntax = "proto3";
 package nglm_grpc;
 
 service Server {
-	rpc register(clientInfo) returns (response) {}
+	rpc register(clientInfo) returns (registerResponse) {}
 	rpc isAlive(query) returns (response) {}
 }
 
@@ -11,6 +11,12 @@ message clientInfo {
 	string hostname = 1;
 	string ipv4 = 2;
 	int32 port = 3;
+	string uuid = 4;
+}
+
+message registerResponse {
+	string uuid = 1;
+	bool success = 2;
 }
 
 message response {
@@ -22,7 +28,8 @@ message query {
 }
 
 service Logging {
-	rpc start(params) returns (stream chunks) {}
+	rpc start(params) returns (response) {}
+	rpc output(stream chunks) returns (response) {}
 	rpc getConfig(chunkSize) returns (stream chunks) {}
 	rpc setConfig(stream chunks) returns (response) {}
 }
@@ -36,6 +43,7 @@ message params {
 	string pname = 2;
 	int32 interval = 3;
 	int32 duration = 4;
+	string taskUUID = 5;
 }
 
 message chunks {

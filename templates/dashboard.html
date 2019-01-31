@@ -18,6 +18,12 @@ Dashboard
 </a>
 </li>
 <li class="nav-item">
+<a class="nav-link" href="groups">
+  <span data-feather="package"></span>
+  Groups
+</a>
+</li>
+<li class="nav-item">
 <a class="nav-link" href="nodes">
   <span data-feather="git-commit"></span>
   Nodes
@@ -26,6 +32,24 @@ Dashboard
 {% endblock navitems %}
 
 {% block content_accordion %}
+<div class="accordion" id="groupAccordion">
+    <h3>Node Groups:
+        <a href="groups"><font size="2">Details</font></a> </h3>
+{% if node_groups %}
+{% for group in node_groups %}
+    <div class="card">
+        <div class="card-header" id="heading-grp-{{forloop.counter}}">
+            {{ group.groupname}} ({{ group.node_count }} nodes)
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="alert alert-danger" role="alert">
+        There are no node groups.
+    </div>
+{% endif %}
+</div>
+<br/>
 <div class="accordion" id="nodeAccordion">
     <h3>Available Nodes:
         <a href="nodes"><font size="2">Details</font></a> </h3>

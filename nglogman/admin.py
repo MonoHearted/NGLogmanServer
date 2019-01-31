@@ -23,16 +23,17 @@ class ReadOnlyAdmin(admin.ModelAdmin):
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     scheduler = None
+    job = None
 
     def save_model(self, request, obj, form, change):
         from nglm_grpc.gRPCMethods import scheduleTask
-        self.scheduler = scheduleTask(obj)
+        self.scheduler, self.job = scheduleTask(obj)
         print('scheduleTask called')
         super().save_model(request, obj, form, change)
 
     def delete_model(self, request, obj):
-        self.scheduler.shutdown(wait=False)
-        print('scheduler shutdown')
+        self.job.remove()
+        print('job with id %s removed.' % self.job.id)
         super().delete_model(request, obj)
 
 

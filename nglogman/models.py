@@ -41,8 +41,7 @@ class Task(models.Model):
     )
     status = models.CharField(max_length=20,
                               editable=False, default='Scheduled')
-    assignedNode = models.ForeignKey(NodeGroup, on_delete=models.CASCADE,
-                                     name='Assigned Group')
+    assignedNode = models.ForeignKey(NodeGroup, on_delete=models.CASCADE)
     createTime = models.DateTimeField(auto_now=True)
     startTime = models.DateTimeField(null=False)
     duration = models.DurationField(null=False)

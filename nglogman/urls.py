@@ -7,6 +7,7 @@ urlpatterns = [
     path('', lambda r: HttpResponseRedirect('dashboard')),
     path('dashboard', views.DashboardView, name='dashboard'),
     path('tasks', views.TaskListView, name='tasks'),
+    path('groups', views.GroupListView, name='groups'),
     path('nodes', views.NodeListView, name='nodes'),
     re_path(r'^Output/(?P<path>.*)$', views.outputDownload,
             {'document_root': OUTPUT_ROOT}),

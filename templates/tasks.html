@@ -18,6 +18,12 @@ Upcoming Tasks
 </a>
 </li>
 <li class="nav-item">
+<a class="nav-link" href="groups">
+  <span data-feather="package"></span>
+  Groups
+</a>
+</li>
+<li class="nav-item">
 <a class="nav-link" href="nodes">
   <span data-feather="git-commit"></span>
   Nodes
@@ -74,12 +80,12 @@ Upcoming Tasks
     </div>
 {% endif %}
 </div>
-{% if completed_tasks %}
+{% if completed_tasks or failed_tasks %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Completed Tasks</h1>
 </div>
     {% for task in completed_tasks %}
-        <div class="card">
+        <div class="card border-success">
             <div class="card-header" id="heading-comp{{forloop.counter}}">
                 <h2 class="mb-0">
                     <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-comp{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-comp{{forloop.counter}}">
@@ -91,6 +97,25 @@ Upcoming Tasks
                 <div class="card-body">
                     Status: {{task.status}} <br/>
                     Download: <a href="Output/{{task.assignedNode.hostname}}_{{task.taskUUID}}_result.xls" target="_blank">perflog</a><br/>
+                    Creation Time: {{task.createTime}} <br/>
+                    Start Time: {{task.startTime}} <br/>
+                    Task UUID: {{task.taskUUID}} <br/>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    {% for task in failed_tasks %}
+        <div class="card border-danger">
+            <div class="card-header" id="heading-fail{{forloop.counter}}">
+                <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-fail{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-fail{{forloop.counter}}">
+                        {{task.taskName}}
+                    </button>
+                </h2>
+            </div>
+            <div id="collapse-fail{{forloop.counter}}" class="collapse" aria-labelledby="heading-fail{{forloop.counter}}" data-parent="#contentAccordion">
+                <div class="card-body">
+                    Status: {{task.status}} <br/>
                     Creation Time: {{task.createTime}} <br/>
                     Start Time: {{task.startTime}} <br/>
                     Task UUID: {{task.taskUUID}} <br/>

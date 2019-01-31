@@ -17,7 +17,7 @@ class ServerStub(object):
     self.register = channel.unary_unary(
         '/nglm_grpc.Server/register',
         request_serializer=nglm__grpc_dot_nglm__pb2.clientInfo.SerializeToString,
-        response_deserializer=nglm__grpc_dot_nglm__pb2.response.FromString,
+        response_deserializer=nglm__grpc_dot_nglm__pb2.registerResponse.FromString,
         )
     self.isAlive = channel.unary_unary(
         '/nglm_grpc.Server/isAlive',
@@ -50,7 +50,7 @@ def add_ServerServicer_to_server(servicer, server):
       'register': grpc.unary_unary_rpc_method_handler(
           servicer.register,
           request_deserializer=nglm__grpc_dot_nglm__pb2.clientInfo.FromString,
-          response_serializer=nglm__grpc_dot_nglm__pb2.response.SerializeToString,
+          response_serializer=nglm__grpc_dot_nglm__pb2.registerResponse.SerializeToString,
       ),
       'isAlive': grpc.unary_unary_rpc_method_handler(
           servicer.isAlive,
@@ -73,10 +73,15 @@ class LoggingStub(object):
     Args:
       channel: A grpc.Channel.
     """
-    self.start = channel.unary_stream(
+    self.start = channel.unary_unary(
         '/nglm_grpc.Logging/start',
         request_serializer=nglm__grpc_dot_nglm__pb2.params.SerializeToString,
-        response_deserializer=nglm__grpc_dot_nglm__pb2.chunks.FromString,
+        response_deserializer=nglm__grpc_dot_nglm__pb2.response.FromString,
+        )
+    self.output = channel.stream_unary(
+        '/nglm_grpc.Logging/output',
+        request_serializer=nglm__grpc_dot_nglm__pb2.chunks.SerializeToString,
+        response_deserializer=nglm__grpc_dot_nglm__pb2.response.FromString,
         )
     self.getConfig = channel.unary_stream(
         '/nglm_grpc.Logging/getConfig',
@@ -101,6 +106,13 @@ class LoggingServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def output(self, request_iterator, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
   def getConfig(self, request, context):
     # missing associated documentation comment in .proto file
     pass
@@ -118,10 +130,15 @@ class LoggingServicer(object):
 
 def add_LoggingServicer_to_server(servicer, server):
   rpc_method_handlers = {
-      'start': grpc.unary_stream_rpc_method_handler(
+      'start': grpc.unary_unary_rpc_method_handler(
           servicer.start,
           request_deserializer=nglm__grpc_dot_nglm__pb2.params.FromString,
-          response_serializer=nglm__grpc_dot_nglm__pb2.chunks.SerializeToString,
+          response_serializer=nglm__grpc_dot_nglm__pb2.response.SerializeToString,
+      ),
+      'output': grpc.stream_unary_rpc_method_handler(
+          servicer.output,
+          request_deserializer=nglm__grpc_dot_nglm__pb2.chunks.FromString,
+          response_serializer=nglm__grpc_dot_nglm__pb2.response.SerializeToString,
       ),
       'getConfig': grpc.unary_stream_rpc_method_handler(
           servicer.getConfig,

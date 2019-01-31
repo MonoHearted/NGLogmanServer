@@ -18,6 +18,12 @@ List of Available Nodes
 </a>
 </li>
 <li class="nav-item">
+<a class="nav-link" href="groups">
+  <span data-feather="package"></span>
+  Groups
+</a>
+</li>
+<li class="nav-item">
 <a class="nav-link active" href="nodes">
   <span data-feather="git-commit"></span>
   Nodes <span class="sr-only">(current)</span>
@@ -34,7 +40,7 @@ List of Available Nodes
 
 {% block content_accordion %}
 <div class="accordion" id="contentAccordion">
-{% if offline_node_set %}
+{% if offline_node_set or available_node_set %}
 {% for node in available_node_set %}
     {% if node.status == 'Busy' %}
     <div class="card border-warning">

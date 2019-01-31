@@ -6,7 +6,8 @@ from django.shortcuts import redirect
 import os
 
 # Create your views here.
-from . models import Task, LGNode
+from . models import Task, LGNode, NodeGroup
+from django.db.models import Count
 
 
 def TaskListView(request):
@@ -15,7 +16,8 @@ def TaskListView(request):
         'task_set': Task.objects.exclude(status='Completed'),
         'scheduled_tasks': Task.objects.filter(status='Scheduled'),
         'in_progress': Task.objects.filter(status='In Progress'),
-        'completed_tasks': Task.objects.filter(status='Completed')
+        'completed_tasks': Task.objects.filter(status='Completed'),
+        'failed_tasks': Task.objects.filter(status__contains='Failed')
     }
     return HttpResponse(template.render(context, request))
 
@@ -23,6 +25,9 @@ def TaskListView(request):
 def DashboardView(request):
     template = loader.get_template('dashboard.html')
     context = {
+        'node_groups': NodeGroup.objects.all().annotate(
+            node_count=Count('nodes')
+        ),
         'available_node_set': LGNode.objects.filter(status='Available'),
         'task_set': Task.objects.exclude(status='Completed')
     }
@@ -36,6 +41,16 @@ def outputDownload(request, document_root, path=''):
         response['content_type'] = 'application/vnd.ms-excel'
         response['Content-Disposition'] = 'attachment;filename=' + path
         return response
+
+
+def GroupListView(request):
+    template = loader.get_template('groups.html')
+    context = {
+        'node_groups': NodeGroup.objects.all().annotate(
+            node_count=Count('nodes')
+        )
+    }
+    return HttpResponse(template.render(context, request))
 
 
 def NodeListView(request):
