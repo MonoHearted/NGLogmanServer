@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block titleheader %}
+Configuration for '{{ group_name }}' <br>
+{% endblock titleheader %}
+
+{% block navitems %}
+<li class="nav-item">
+<a class="nav-link" href="/dashboard">
+  <span data-feather="home"></span>
+  Dashboard
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="/tasks">
+  <span data-feather="clipboard"></span>
+  Tasks
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="/groups">
+  <span data-feather="package"></span>
+  Groups
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="/nodes">
+  <span data-feather="git-commit"></span>
+  Nodes
+</a>
+</li>
+{% endblock navitems %}
+
+{% block content_accordion %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% if offline_nodes %}
+<div class="alert alert-danger" role="alert">
+    The following nodes are offline: <ul>
+    {% for node in offline_nodes %} <li>{{node.ip}}:{{node.port}} </li>{% endfor %}
+    </ul>
+    Uploaded configs will not be applied.
+</div>
+{% endif %}
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="form-group">
+            {{field.label_tag}}
+            {% if form.is_bound %}
+                {% if field.errors %}
+                    {% if field.name == 'file' %}
+                        {% render_field field class="form-control-file is-invalid" %}
+                    {% else %}
+                        {% render_field field class="form-control is-invalid" %}
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="invalid-feedback">
+                          {{ error }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {% if field.name == 'file' %}
+                        {% render_field field class="form-control-file is-valid" %}
+                    {% else %}
+                        {% render_field field class="form-control is-valid" %}
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                {% if field.name == 'file' %}
+                    {% render_field field class="form-control-file" %}
+                {% else %}
+                    {% render_field field class="form-control" %}
+                {% endif %}
+            {% endif %}
+            {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+            {% endif %}
+        </div>
+    {% endfor %}
+    <input type="submit" value="Submit">
+</form>
+{% endblock content_accordion %}

@@ -184,6 +184,29 @@ def startLogging(nodes, task):
             print(str(node) + ' was not available for task.')
             continue
 
+def getChunks(f):
+    while True:
+        chunk = f.read(1024)
+        if not chunk:
+            break
+        yield nglm_pb2.chunks(buffer=chunk)
+
+def setConfig(nodes, f):
+    failedNodes = []
+    chunkList = list(getChunks(f))
+    for node in nodes:
+        nodeAddress = node.ip + ':' + str(node.port)
+        try:
+            iterator = iter(chunkList)
+            channel = grpc.insecure_channel(nodeAddress)
+            stub = nglm_pb2_grpc.LoggingStub(channel)
+            response = stub.setConfig(iterator)
+            if not response.success:
+                failedNodes.append(node.ip)
+        except:
+            failedNodes.append(node.ip)
+            continue
+    return failedNodes
 
 def getConfig(node, size=1):
     nodeAddress = node.ip + ':' + node.port

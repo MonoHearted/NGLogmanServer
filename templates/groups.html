@@ -52,14 +52,26 @@ List of Groups
         </div>
         <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}" data-parent="#contentAccordion">
             <div class="card-body">
-                Nodes:
-                <ul>
-                    {% for node in grp.nodes.all %}
-                    <li>{{node.hostname}} @ {{node.ip}}:{{node.port}}</li>
-                    {% endfor %}
-                </ul>
+                Nodes: <br/>
+                <p style="margin-left:30px">
+                {% for node in grp.nodes.all %}
+                    {% if node.status == 'Available' %}
+                        <status-indicator positive pulse></status-indicator>
+                    {% elif node.status == 'Busy' %}
+                        <status-indicator intermediary pulse></status-indicator>
+                    {% else %}
+                        <status-indicator negative pulse></status-indicator>
+                    {% endif %}
+                    {{node.hostname}} @ {{node.ip}}:{{node.port}}
+                    <br/>
+                {% endfor %}
+                </p>
                 Current Task: {{grp.currentTask}}<br/>
-                Comments: {{grp.comments}}
+                {% if grp.comments %}
+                    Comments: {{grp.comments}}<br/>
+                {% endif %}
+                <br/>
+                <a href="groups/{{grp.id}}/config">Configure...</a>
             </div>
         </div>
     </div>

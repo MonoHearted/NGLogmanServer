@@ -46,8 +46,7 @@ class Task(models.Model):
     startTime = models.DateTimeField(null=False)
     duration = models.DurationField(null=False)
     interval = models.PositiveSmallIntegerField(default=4)
-    taskUUID = models.UUIDField(primary_key=True,
-                                default=uuid.uuid4,
+    taskUUID = models.UUIDField(primary_key=True, default=uuid.uuid4,
                                 editable=False)
 
     def __str__(self):

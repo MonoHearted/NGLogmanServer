@@ -1,13 +1,14 @@
 from django.template import loader
 
-from django.views.generic import ListView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
+from django.contrib import messages
 import os
 
 # Create your views here.
 from . models import Task, LGNode, NodeGroup
-from django.db.models import Count
+from nglm_grpc.gRPCMethods import setConfig
+from django.db.models import Count, Q
 
 
 def TaskListView(request):
@@ -47,7 +48,8 @@ def GroupListView(request):
     template = loader.get_template('groups.html')
     context = {
         'node_groups': NodeGroup.objects.all().annotate(
-            node_count=Count('nodes')
+            node_count=Count('nodes'),
+            off_count=Count('nodes', filter=Q(nodes__status__iexact='offline'))
         )
     }
     return HttpResponse(template.render(context, request))
@@ -63,5 +65,31 @@ def NodeListView(request):
     context = {
         'available_node_set': LGNode.objects.exclude(status='Offline'),
         'offline_node_set': LGNode.objects.filter(status='Offline')
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def ConfigUpload(request, groupID=''):
+    from .forms import ConfigForm
+    template = loader.get_template('config.html')
+    if request.method == 'POST':
+        form = ConfigForm(groupID, request.POST, request.FILES)
+        if form.is_valid():
+            failedNodes = setConfig(
+                NodeGroup.objects.get(id=groupID).nodes.all(),
+                request.FILES['file'])
+            if not failedNodes:
+                messages.success(request, 'Successfully set all configs.')
+            else:
+                messages.warning(request, 'Failed to set config for: '
+                                 + ', '.join(failedNodes))
+    else:
+        form = ConfigForm(groupID)
+    context = {
+        'form': form,
+        'group_name': NodeGroup.objects.get(id=groupID).groupname,
+        'offline_nodes': NodeGroup.objects.get(id=groupID).nodes.filter(
+            status__iexact="offline"
+        )
     }
     return HttpResponse(template.render(context, request))

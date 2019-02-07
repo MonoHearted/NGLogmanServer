@@ -96,7 +96,7 @@ Upcoming Tasks
             <div id="collapse-comp{{forloop.counter}}" class="collapse" aria-labelledby="heading-comp{{forloop.counter}}" data-parent="#contentAccordion">
                 <div class="card-body">
                     Status: {{task.status}} <br/>
-                    Download: <a href="Output/{{task.assignedNode.hostname}}_{{task.taskUUID}}_result.xls" target="_blank">perflog</a><br/>
+                    Download: <a href="Output/{{task.taskUUID}}/overview.xlsx" target="_blank">perflog</a><br/>
                     Creation Time: {{task.createTime}} <br/>
                     Start Time: {{task.startTime}} <br/>
                     Task UUID: {{task.taskUUID}} <br/>
