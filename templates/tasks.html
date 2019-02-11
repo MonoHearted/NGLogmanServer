@@ -6,25 +6,25 @@ Upcoming Tasks
 
 {% block navitems %}
 <li class="nav-item">
-<a class="nav-link" href="dashboard">
+<a class="nav-link" href="/dashboard">
   <span data-feather="home"></span>
   Dashboard
 </a>
 </li>
 <li class="nav-item">
-<a class="nav-link active" href="tasks">
+<a class="nav-link active" href="/tasks">
   <span data-feather="clipboard"></span>
   Tasks  <span class="sr-only">(current)</span>
 </a>
 </li>
 <li class="nav-item">
-<a class="nav-link" href="groups">
+<a class="nav-link" href="/groups">
   <span data-feather="package"></span>
   Groups
 </a>
 </li>
 <li class="nav-item">
-<a class="nav-link" href="nodes">
+<a class="nav-link" href="/nodes">
   <span data-feather="git-commit"></span>
   Nodes
 </a>
@@ -96,6 +96,7 @@ Upcoming Tasks
             <div id="collapse-comp{{forloop.counter}}" class="collapse" aria-labelledby="heading-comp{{forloop.counter}}" data-parent="#contentAccordion">
                 <div class="card-body">
                     Status: {{task.status}} <br/>
+                    Overview: <a href="tasks/{{task.taskUUID}}/overview">Graph</a><br/>
                     Download: <a href="Output/{{task.taskUUID}}/overview.xlsx" target="_blank">perflog</a><br/>
                     Creation Time: {{task.createTime}} <br/>
                     Start Time: {{task.startTime}} <br/>

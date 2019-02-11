@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block csslinks %}
+<link href="http://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.css" rel="stylesheet" type="text/css">
+<link href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.4.min.css" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block titleheader %}
+Task Overview
+{% endblock titleheader %}
+
+{% block navitems %}
+<li class="nav-item">
+<a class="nav-link" href="/dashboard">
+  <span data-feather="home"></span>
+  Dashboard
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="/tasks">
+  <span data-feather="clipboard"></span>
+  Tasks
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="/groups">
+  <span data-feather="package"></span>
+  Groups
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link active" href="/nodes">
+  <span data-feather="git-commit"></span>
+  Nodes <span class="sr-only">(current)</span>
+</a>
+</li>
+{% endblock navitems %}
+
+{% block content_accordion %}
+    {{ bokehDiv | safe }}
+{% endblock content_accordion %}
+
+{% block scripts %}
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.4.min.js"></script>
+    {{ bokehScript | safe }}
+{% endblock %}

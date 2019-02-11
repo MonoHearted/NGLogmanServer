@@ -1,6 +1,7 @@
-from django.urls import path, re_path
+from django.urls import include, path, re_path
 from . import views
 from django.http import HttpResponseRedirect
+from rest_framework import routers
 from NGLogmanServer.settings import OUTPUT_ROOT, STATICFILES_DIRS
 
 urlpatterns = [
@@ -12,6 +13,7 @@ urlpatterns = [
     path('nodes', views.NodeListView, name='nodes'),
     re_path(r'^nodeConfigs/(?P<path>.*)$', views.outputDownload,
             {'document_root': STATICFILES_DIRS[0]}),
+    re_path(r'tasks/(?P<taskUUID>.*)/overview$', views.overviewGraph),
     re_path(r'^Output/(?P<path>.*)$', views.outputDownload,
             {'document_root': OUTPUT_ROOT})
 ]

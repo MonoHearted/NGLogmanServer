@@ -32,8 +32,9 @@ class TaskAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def delete_model(self, request, obj):
-        self.job.remove()
-        print('job with id %s removed.' % self.job.id)
+        if self.job is not None:
+            self.job.remove()
+            print('job with id %s removed.' % self.job.id)
         super().delete_model(request, obj)
 
 

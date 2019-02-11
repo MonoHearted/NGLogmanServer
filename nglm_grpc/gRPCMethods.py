@@ -98,7 +98,7 @@ def validateTask(task):
             for row in read_ws:
                 for cell in row:
                     wb.active[cell.coordinate].value = cell.value
-    del wb['Sheet']
+    del wb['Sheet']  # removes extra default sheet
     wb.save(res_path)
 
 def checkNodes(nodes):
@@ -173,7 +173,8 @@ def startLogging(nodes, task):
             params = nglm_pb2.params(pname='httpd', interval=itr, duration=dur)
 
             response = stub.start(params)
-            task.assignedNode.update(currentTask=task.taskUUID)
+            task.assignedNode.currentTask = task.taskUUID
+            task.assignedNode.save()
             Task.objects.filter(taskUUID=task.taskUUID).update(
                 status="In Progress")
             LGNode.objects.filter(nodeUUID=node.nodeUUID).update(
