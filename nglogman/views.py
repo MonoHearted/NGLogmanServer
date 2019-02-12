@@ -7,16 +7,18 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render_to_response
 from django.contrib import messages
 from django.db.models import Count, Q
+from rest_framework.parsers import JSONParser
 
 import pandas as pd
 
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 
 from bokeh.layouts import column
 from bokeh.plotting import figure, output_file, show
 from bokeh.embed import components
+from bokeh.models.widgets import Select, CustomJS
 
 
 from . models import Task, LGNode, NodeGroup
@@ -118,6 +120,7 @@ def overviewGraph(request, taskUUID=''):
         full_df = full_df.append(sheet)
 
     figures = list()
+    statlines = dict()
     full_df.columns = full_df.columns.str.replace(r'\s+', '_')
     tooltips = [('(x, y)', '($x{int}, $y)')]
     for col in full_df:
@@ -134,13 +137,20 @@ def overviewGraph(request, taskUUID=''):
         )
         plot.title.text_font_size = '14pt'
         plot.title.text_font_style = 'bold'
+
         data = dict()
+
         for row in full_df.itertuples():
             if not re.search('[a-z]', row.Time):
                 if not data.get(row.node):
                     data[row.node] = [list(), list()]
                 data[row.node][0].append(row.Index)
                 data[row.node][1].append(getattr(row, col))
+            # else:
+            #     if not statlines.get(row.Time):
+            #         statlines[row.Time] = list()
+            #     statlines[row.Time].append(plot.line(
+            #         row.Index, col, line_dash='dashed', visible=False))
 
         if(len(data.items()) <= 10):
             from bokeh.palettes import Category10_10 as palette
@@ -161,10 +171,21 @@ def overviewGraph(request, taskUUID=''):
         figures.append(plot)
 
     figures = column(*figures)
+    # opts = [key for key in statlines].insert(0, 'None')
+    # select = Select(title='Statline:', value='None', options=opts)
+    # select.callback = CustomJS(args=statlines, code="""
+    #
+    # """)
     script, div = components(figures)
     context = {'bokehScript': script, 'bokehDiv': div}
     return HttpResponse(template.render(context, request))
 
 @api_view(['POST'])
+@parser_classes((JSONParser,))
 def schedule_task(request):
-    pass
+    from nglogman.serializers import TaskSerializer
+    serializer = TaskSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

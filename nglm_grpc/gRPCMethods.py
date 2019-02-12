@@ -8,9 +8,11 @@ from openpyxl import Workbook, load_workbook
 from . import nglm_pb2
 from . import nglm_pb2_grpc
 from nglogman.models import LGNode, Task
+from apscheduler.schedulers.background import BackgroundScheduler
 
 TIMEOUT_SECONDS = 2
 ROOT_DIR = os.path.dirname(sys.modules['__main__'].__file__)
+SCHEDULER = scheduler = BackgroundScheduler()
 
 class ServerServicer(nglm_pb2_grpc.ServerServicer):
     def register(self, request, context):
@@ -136,16 +138,14 @@ def checkNodes(nodes):
 
 
 def scheduleTask(task):
-    from apscheduler.schedulers.background import BackgroundScheduler
-    scheduler = BackgroundScheduler()
-    job = scheduler.add_job(
+    job = SCHEDULER.add_job(
         startLogging,
         trigger='date', args=(task.assignedNode.nodes.all(), task),
         run_date=task.startTime, id=str(task.taskUUID)
     )
-    scheduler.start()
+    SCHEDULER.start()
     print('Task with UUID %s scheduled.' % task.taskUUID)
-    return scheduler, job
+    return SCHEDULER, job
 
 def updateNodes(nodes):
     LGNode.objects.exclude(status="Busy").update(status="Offline")
