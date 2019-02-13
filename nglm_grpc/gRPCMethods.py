@@ -10,9 +10,9 @@ from . import nglm_pb2_grpc
 from nglogman.models import LGNode, Task
 from apscheduler.schedulers.background import BackgroundScheduler
 
+SCHEDULER = BackgroundScheduler()
 TIMEOUT_SECONDS = 2
 ROOT_DIR = os.path.dirname(sys.modules['__main__'].__file__)
-SCHEDULER = scheduler = BackgroundScheduler()
 
 class ServerServicer(nglm_pb2_grpc.ServerServicer):
     def register(self, request, context):
@@ -139,7 +139,7 @@ def checkNodes(nodes):
 
 def scheduleTask(task):
     job = SCHEDULER.add_job(
-        startLogging,
+        startLogging, replace_existing=True,
         trigger='date', args=(task.assignedNode.nodes.all(), task),
         run_date=task.startTime, id=str(task.taskUUID)
     )

@@ -34,11 +34,7 @@ class NodeGroup(models.Model):
 
 
 class Task(models.Model):
-    taskName = models.CharField(max_length=200,null=False)
-    owner = models.ForeignKey(
-        'auth.User',
-        on_delete=models.CASCADE,
-    )
+    taskName = models.CharField(max_length=200, null=False)
     status = models.CharField(max_length=20,
                               editable=False, default='Scheduled')
     assignedNode = models.ForeignKey(NodeGroup, on_delete=models.CASCADE)

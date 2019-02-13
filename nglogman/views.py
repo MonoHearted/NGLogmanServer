@@ -7,22 +7,19 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render_to_response
 from django.contrib import messages
 from django.db.models import Count, Q
-from rest_framework.parsers import JSONParser
 
 import pandas as pd
-
-from rest_framework import status
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.response import Response
 
 from bokeh.layouts import column
 from bokeh.plotting import figure, output_file, show
 from bokeh.embed import components
-from bokeh.models.widgets import Select, CustomJS
+from bokeh.models.widgets import Select
+from bokeh.models.callbacks import CustomJS
 
 
 from . models import Task, LGNode, NodeGroup
 from nglm_grpc.gRPCMethods import setConfig, ROOT_DIR
+from nglm_grpc.modules.Utility import acronymTitleCase
 
 
 def TaskListView(request):
@@ -130,8 +127,8 @@ def overviewGraph(request, taskUUID=''):
         plot = figure(
             width=1000, height=300,
             x_axis_label='Index',
-            y_axis_label=col.replace('_', ' ').title(),
-            title=col.replace('_', ' ').title(),
+            y_axis_label=acronymTitleCase(col.replace('_', ' ')),
+            title=acronymTitleCase(col.replace('_', ' ')),
             sizing_mode='stretch_both',
             tooltips=tooltips
         )
@@ -179,13 +176,3 @@ def overviewGraph(request, taskUUID=''):
     script, div = components(figures)
     context = {'bokehScript': script, 'bokehDiv': div}
     return HttpResponse(template.render(context, request))
-
-@api_view(['POST'])
-@parser_classes((JSONParser,))
-def schedule_task(request):
-    from nglogman.serializers import TaskSerializer
-    serializer = TaskSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

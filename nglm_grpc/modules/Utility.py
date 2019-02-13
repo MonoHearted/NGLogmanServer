@@ -8,6 +8,14 @@ logger = logging.getLogger(__name__)
 Units = ['BYTES', 'KB', 'MB', 'GB', 'TB']
 MUL = [1, 1 << 10, 1 << 20, 1 << 30, 1 << 40]
 
+def acronymTitleCase(string):
+    string = string.title()
+    acronyms = ['KB', 'MB', 'GB', 'TB', 'CPU']
+    for acronym in map(str.title, acronyms):
+        if acronym in string:
+            string = string.replace(acronym, acronym.upper())
+    return string
+
 
 def convertBytesTo(unit):
     if (not unit in Units):
