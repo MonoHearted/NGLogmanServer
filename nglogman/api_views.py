@@ -30,7 +30,7 @@ class TaskInterface(APIView):
 
     Create and schedule a new task.
 
-    For a specific task, use /api/tasks/<UUID>
+    For a specific task, use the ``/api/tasks/<UUID>`` endpoint.
     """
     parser_classes = (JSONParser,)
 
@@ -53,7 +53,7 @@ class NodeInterface(APIView):
 
     Returns a list of all registered nodes.
 
-    For a specific node, use /api/nodes/<UUID>
+    For a specific node, use the ``/api/nodes/<UUID>`` endpoint.
     """
     parser_classes = (JSONParser,)
 
@@ -73,7 +73,7 @@ class GroupInterface(APIView):
 
     Create and schedule a new group.
 
-    For a specific group, use /api/groups/<id>
+    For a specific group, use the ``/api/groups/<id>`` endpoint.
     """
     parser_classes = (JSONParser,)
 
@@ -115,8 +115,14 @@ class TaskView(APIView):
         return Response(serializer.data)
 
     def delete(self, request, pk):
+        import apscheduler.jobstores.base as base
         task = self.get_object(pk)
-        SCHEDULER.remove_job(str(task.taskUUID))
+
+        try:
+            SCHEDULER.remove_job(str(task.taskUUID))
+        except base.JobLookupError:
+            pass
+
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

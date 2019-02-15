@@ -22,7 +22,6 @@ class ReadOnlyAdmin(admin.ModelAdmin):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    scheduler = None
     job = None
 
     def save_model(self, request, obj, form, change):
