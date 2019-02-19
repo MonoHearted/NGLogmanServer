@@ -26,11 +26,12 @@ class TaskInterface(APIView):
 
     Returns a list of all tasks, including completed ones.
 
-    ##PUT <small>Fields: `assignedNode`, `startTime`, `duration`, `interval`</small>
+    For a specific task, use the ``/api/tasks/<UUID>`` endpoint.
+
+    ##POST <small>Fields: `taskName`, `assignedNode`, `startTime`, `duration`, `interval`</small>
 
     Create and schedule a new task.
 
-    For a specific task, use the ``/api/tasks/<UUID>`` endpoint.
     """
     parser_classes = (JSONParser,)
 
@@ -69,11 +70,12 @@ class GroupInterface(APIView):
 
     Returns a list of all node groups.
 
-    ##PUT <small>Fields: `groupname`, `currentTask`, `comments`, `nodes`</small>
+    For a specific group, use the ``/api/groups/<id>`` endpoint.
+
+    ##POST <small>Fields: `groupname`, `currentTask`, `comments`, `nodes`</small>
 
     Create and schedule a new group.
 
-    For a specific group, use the ``/api/groups/<id>`` endpoint.
     """
     parser_classes = (JSONParser,)
 

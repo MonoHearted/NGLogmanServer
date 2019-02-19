@@ -39,13 +39,13 @@ class NodeViewSerializer(serializers.ModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = NodeGroup
-        fields = ('groupname', 'currentTask', 'comments', 'nodes')
+        fields = ('id', 'groupname', 'currentTask', 'comments', 'nodes')
 
 
 class GroupDetailedSerializer(serializers.ModelSerializer):
     class Meta:
         model = NodeGroup
-        fields = ('groupname', 'currentTask', 'comments', 'nodes')
+        fields = ('id', 'groupname', 'currentTask', 'comments', 'nodes')
         depth = 1
 
 

@@ -7,7 +7,7 @@ from openpyxl import Workbook, load_workbook
 
 from . import nglm_pb2
 from . import nglm_pb2_grpc
-from nglogman.models import LGNode, Task
+from nglogman.models import LGNode, Task, NodeGroup
 from apscheduler.schedulers.background import BackgroundScheduler
 
 SCHEDULER = BackgroundScheduler()
@@ -61,9 +61,6 @@ class LoggingServicer(nglm_pb2_grpc.LoggingServicer):
                 ROOT_DIR,
                 "Output", str(task.taskUUID),
                 node.hostname + '_' + str(task.taskUUID) + '_result.xlsx'))
-
-            Task.objects.filter(taskUUID=task.taskUUID).update(
-                status="Completed")
             LGNode.objects.filter(nodeUUID=node.nodeUUID).update(
                 status="Available", currentTask=None)
             res.success = True
@@ -102,6 +99,12 @@ def validateTask(task):
                     wb.active[cell.coordinate].value = cell.value
     del wb['Sheet']  # removes extra default sheet
     wb.save(res_path)
+
+    Task.objects.filter(taskUUID=task.taskUUID).update(
+        status="Completed")
+    NodeGroup.objects.filter(currentTask=task.taskUUID).update(
+        currentTask=None)
+
 
 def checkNodes(nodes):
     # returns list of ip:port of available nodes
