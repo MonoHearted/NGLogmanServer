@@ -39,7 +39,7 @@ class TaskInterface(APIView):
         serializer = TaskViewSerializer(tasks, many=True, read_only=True)
         return Response(serializer.data)
 
-    def put(self, request):
+    def post(self, request):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -82,7 +82,7 @@ class GroupInterface(APIView):
         serializer = GroupSerializer(groups, many=True, read_only=True)
         return Response(serializer.data)
 
-    def put(self, request):
+    def post(self, request):
         serializer = GroupSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

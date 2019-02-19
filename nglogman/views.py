@@ -162,9 +162,9 @@ def overviewGraph(request, taskUUID=''):
                       line_width=2)
             plot.line(val[0], y_average,
                       line_dash='dashed', color=color)
-            plot.circle(val[0], val[1], fill_color="white", color=color,
-                        size=8)
-
+    #        plot.circle(val[0], val[1], fill_color="white", color=color,
+    #                    size=8)
+        plot.legend.click_policy = "hide"
         figures.append(plot)
 
     figures = column(*figures)

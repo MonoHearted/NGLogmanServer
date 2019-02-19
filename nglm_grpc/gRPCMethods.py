@@ -143,7 +143,8 @@ def scheduleTask(task):
         trigger='date', args=(task.assignedNode.nodes.all(), task),
         run_date=task.startTime, id=str(task.taskUUID)
     )
-    SCHEDULER.start()
+    if not SCHEDULER.running:
+        SCHEDULER.start()
     print('Task with UUID %s scheduled.' % task.taskUUID)
     return SCHEDULER, job
 
