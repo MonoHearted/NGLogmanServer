@@ -49,6 +49,13 @@ Configuration for '{{ group_name }}' <br>
     Uploaded configs will not be applied.
 </div>
 {% endif %}
+<h4>Current Configs</h4>
+<p>
+    {% for node in all_nodes %}
+    <a href="/nodeConfigs/{{node.nodeUUID}}_config.ini" target="_blank">{{ node.ip }}:{{ node.port }}</a><br/>
+    {% endfor %}
+</p>
+<h4>Upload New Config</h4>
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {% for field in form %}

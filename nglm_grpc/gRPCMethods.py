@@ -127,7 +127,6 @@ def checkNodes(nodes):
                 retries = getattr(checkNodes, uuidAttr)
                 if retries >= 10:
                     LGNode.objects.filter(nodeUUID=node.uuid).delete()
-                    # Todo: Implement on_delete to remove assigned tasks
                     delattr(checkNodes, uuidAttr)
                 else:
                     setattr(checkNodes, uuidAttr, retries + 1)
@@ -149,7 +148,7 @@ def scheduleTask(task):
     if not SCHEDULER.running:
         SCHEDULER.start()
     print('Task with UUID %s scheduled.' % task.taskUUID)
-    return SCHEDULER, job
+    return job
 
 def updateNodes(nodes):
     LGNode.objects.exclude(status="Busy").update(status="Offline")
@@ -213,13 +212,14 @@ def setConfig(nodes, f):
             continue
     return failedNodes
 
-def getConfig(node, size=1):
-    nodeAddress = node.ip + ':' + node.port
-    channel = grpc.insecure_channel(nodeAddress)
-    stub = nglm_pb2_grpc.LoggingStub(channel)
-    params = nglm_pb2.chunkSize(size=size)
+def getConfig(nodes, size=1):
+    for node in nodes:
+        nodeAddress = node.ip + ':' + str(node.port)
+        channel = grpc.insecure_channel(nodeAddress)
+        stub = nglm_pb2_grpc.LoggingStub(channel)
+        params = nglm_pb2.chunkSize(size=size)
 
-    response = stub.getConfig(params)
-    saveResponse(response, os.path.join(
-        os.path.dirname(sys.modules['__main__'].__file__),
-        "nodeConfigs", node.nodeUUID + '_config.ini'))
+        response = stub.getConfig(params)
+        saveResponse(response, os.path.join(
+            os.path.dirname(sys.modules['__main__'].__file__),
+            "nodeConfigs", str(node.nodeUUID) + '_config.ini'))

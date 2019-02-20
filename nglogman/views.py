@@ -18,8 +18,9 @@ from bokeh.models.callbacks import CustomJS
 
 
 from . models import Task, LGNode, NodeGroup
-from nglm_grpc.gRPCMethods import setConfig, ROOT_DIR
+from nglm_grpc.gRPCMethods import setConfig, ROOT_DIR, getConfig, checkNodes
 from nglm_grpc.modules.Utility import acronymTitleCase
+
 
 
 def TaskListView(request):
@@ -57,6 +58,10 @@ def outputDownload(request, document_root, path=''):
 
 def GroupListView(request):
     template = loader.get_template('groups.html')
+    if request.GET.get('refresh'):
+        print('checking nodes...')
+        checkNodes(LGNode.objects.all())
+        return redirect('groups')
     context = {
         'node_groups': NodeGroup.objects.all().annotate(
             node_count=Count('nodes'),
@@ -67,7 +72,6 @@ def GroupListView(request):
 
 
 def NodeListView(request):
-    from nglm_grpc.gRPCMethods import checkNodes
     if request.GET.get('refresh'):
         print('checking nodes...')
         checkNodes(LGNode.objects.all())
@@ -83,6 +87,7 @@ def NodeListView(request):
 def ConfigUpload(request, groupID=''):
     from .forms import ConfigForm
     template = loader.get_template('config.html')
+    getConfig(NodeGroup.objects.get(id=groupID).nodes.all())
     if request.method == 'POST':
         form = ConfigForm(groupID, request.POST, request.FILES)
         if form.is_valid():
@@ -99,6 +104,7 @@ def ConfigUpload(request, groupID=''):
     context = {
         'form': form,
         'group_name': NodeGroup.objects.get(id=groupID).groupname,
+        'all_nodes': NodeGroup.objects.get(id=groupID).nodes.all(),
         'offline_nodes': NodeGroup.objects.get(id=groupID).nodes.filter(
             status__iexact="offline"
         )

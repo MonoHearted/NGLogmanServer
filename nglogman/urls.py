@@ -13,7 +13,7 @@ urlpatterns = [
     re_path(r'^groups/(?P<groupID>\d+)/config$', views.ConfigUpload),
     path('nodes', views.NodeListView, name='nodes'),
     re_path(r'^nodeConfigs/(?P<path>.*)$', views.outputDownload,
-            {'document_root': STATICFILES_DIRS[0]}),
+            {'document_root': STATICFILES_DIRS[1]}),
     re_path(r'tasks/(?P<taskUUID>.*)/overview$', views.overviewGraph),
     re_path(r'^Output/(?P<path>.*)$', views.outputDownload,
             {'document_root': OUTPUT_ROOT}),

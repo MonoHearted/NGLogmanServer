@@ -1,6 +1,7 @@
 logs/*
 .idea/*
 Output/*
+nodeConfigs/*
 *.pyc
 *.sqlite3
 nglogman/migrations/*

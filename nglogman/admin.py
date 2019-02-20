@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import LGNode, Task, NodeGroup
+from nglm_grpc.gRPCMethods import scheduleTask, SCHEDULER
 
 
 # Register your models here.
@@ -22,19 +23,28 @@ class ReadOnlyAdmin(admin.ModelAdmin):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    job = None
 
     def save_model(self, request, obj, form, change):
-        from nglm_grpc.gRPCMethods import scheduleTask
-        self.scheduler, self.job = scheduleTask(obj)
+        scheduleTask(obj)
         print('scheduleTask called')
         super().save_model(request, obj, form, change)
 
     def delete_model(self, request, obj):
-        if self.job is not None:
-            self.job.remove()
-            print('job with id %s removed.' % self.job.id)
+        import apscheduler.jobstores.base as base
+        try:
+            SCHEDULER.remove_job(str(obj.taskUUID))
+        except base.JobLookupError:
+            pass
         super().delete_model(request, obj)
+
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            import apscheduler.jobstores.base as base
+            try:
+                SCHEDULER.remove_job(str(obj.taskUUID))
+            except base.JobLookupError:
+                pass
+            obj.delete()
 
 
 admin.site.register(NodeGroup)
