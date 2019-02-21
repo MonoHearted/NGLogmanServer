@@ -26,6 +26,9 @@ urlpatterns = [
 # call config and logging module here
 
 # add gRPC server start point here
+if sys.version_info[0] < 3:
+    raise Exception("Must be using Python 3.")
+
 if 'runserver' in sys.argv:
     import grpc
 
