@@ -9,18 +9,20 @@ from django.contrib import messages
 from django.db.models import Count, Q
 
 import pandas as pd
+import uuid
+from datetime import timedelta
 
 from bokeh.layouts import column
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure
 from bokeh.embed import components
-from bokeh.models.widgets import Select
-from bokeh.models.callbacks import CustomJS
 
 
 from . models import Task, LGNode, NodeGroup
 from nglm_grpc.gRPCMethods import setConfig, ROOT_DIR, getConfig, checkNodes
 from nglm_grpc.modules.Utility import acronymTitleCase
 
+def searchView(request):
+    template = loader.get_template('search.html')
 
 
 def TaskListView(request):
@@ -113,9 +115,9 @@ def ConfigUpload(request, groupID=''):
 
 def overviewGraph(request, taskUUID=''):
     template = loader.get_template('overview.html')
-    xlsx = pd.ExcelFile(
-        os.path.join(ROOT_DIR, "Output", taskUUID, 'overview.xlsx')
-    )
+    task = Task.objects.get(taskUUID=uuid.UUID(taskUUID))
+    xlsx = pd.ExcelFile(os.path.join(
+        ROOT_DIR, "Reports", task.taskName + '_' + taskUUID, 'overview.xlsx'))
     dfs = pd.read_excel(xlsx, sheet_name=None)
     full_df = pd.DataFrame()
     for name, sheet in dfs.items():
@@ -132,7 +134,7 @@ def overviewGraph(request, taskUUID=''):
 
         plot = figure(
             width=1000, height=300,
-            x_axis_label='Index',
+            x_axis_label='Time Elapsed (s)',
             y_axis_label=acronymTitleCase(col.replace('_', ' ')),
             title=acronymTitleCase(col.replace('_', ' ')),
             sizing_mode='stretch_both',
@@ -147,7 +149,7 @@ def overviewGraph(request, taskUUID=''):
             if not re.search('[a-z]', row.Time):
                 if not data.get(row.node):
                     data[row.node] = [list(), list()]
-                data[row.node][0].append(row.Index)
+                data[row.node][0].append(row.Index * task.interval)
                 data[row.node][1].append(getattr(row, col))
             # else:
             #     if not statlines.get(row.Time):

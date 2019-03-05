@@ -15,7 +15,7 @@ urlpatterns = [
     re_path(r'^nodeConfigs/(?P<path>.*)$', views.outputDownload,
             {'document_root': STATICFILES_DIRS[1]}),
     re_path(r'tasks/(?P<taskUUID>.*)/overview$', views.overviewGraph),
-    re_path(r'^Output/(?P<path>.*)$', views.outputDownload,
+    re_path(r'^Reports/(?P<path>.*)$', views.outputDownload,
             {'document_root': OUTPUT_ROOT}),
 
     path('api', api_views.api_root),

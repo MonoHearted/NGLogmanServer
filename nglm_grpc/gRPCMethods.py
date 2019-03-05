@@ -25,7 +25,7 @@ class ServerServicer(nglm_pb2_grpc.ServerServicer):
             if matchedNodes.count() == 0:
                 res.uuid = request.uuid if request.uuid else str(uuid.uuid4())
                 LGNode.objects.create(hostname=request.hostname,
-                                      ip=request.ipv4, port=request.port,
+                                       ip=request.ipv4, port=request.port,
                                       nodeUUID=uuid.UUID(res.uuid))
                 print('Registered new node. Hostname: ' +
                       request.hostname + ' IP: ' + request.ipv4 +
@@ -59,8 +59,9 @@ class LoggingServicer(nglm_pb2_grpc.LoggingServicer):
 
             saveResponse(request, os.path.join(
                 ROOT_DIR,
-                "Output", str(task.taskUUID),
-                node.hostname + '_' + str(task.taskUUID) + '_result.xlsx'))
+                "Reports", task.taskName + '_' + str(task.taskUUID),
+                node.hostname + '_' + node.ip.split('.')[-1] + '_' +
+                str(task.taskUUID) + '_result.xlsx'))
             LGNode.objects.filter(nodeUUID=node.nodeUUID).update(
                 status="Available", currentTask=None)
             res.success = True
@@ -77,11 +78,13 @@ def addToServer(server):
 
 
 def validateTask(task):
-    output_path = os.path.join(ROOT_DIR, "Output", str(task.taskUUID))
+    output_path = os.path.join(ROOT_DIR, "Reports",
+                               task.taskName + '_' + str(task.taskUUID))
     for node in task.assignedNode.nodes.all():
         path = os.path.join(
             output_path,
-            node.hostname + '_' + str(task.taskUUID) + '_result.xlsx'
+            node.hostname + '_' + node.ip.split('.')[-1] + '_' +
+            str(task.taskUUID) + '_result.xlsx'
         )
         if not os.path.isfile(path):
             return False

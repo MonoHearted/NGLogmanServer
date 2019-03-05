@@ -123,5 +123,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), os.path.join(BASE_DIR, 'nodeConfigs')]
 
-OUTPUT_ROOT = os.path.join(BASE_DIR, 'Output')
-OUTPUT_URL = '/Output'
+OUTPUT_ROOT = os.path.join(BASE_DIR, 'Reports')
+OUTPUT_URL = '/Reports'

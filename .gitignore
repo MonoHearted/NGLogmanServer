@@ -1,6 +1,6 @@
 logs/*
 .idea/*
-Output/*
+Reports/*
 nodeConfigs/*
 *.pyc
 *.sqlite3
