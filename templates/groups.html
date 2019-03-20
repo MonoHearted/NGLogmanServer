@@ -38,10 +38,9 @@ List of Groups
 {% endblock toggleButton %}
 
 {% block content_accordion %}
-<div class="accordion" id="contentAccordion">
 {% if node_groups %}
 {% for grp in node_groups %}
-    <div class="card">
+    <div class="card mt-2">
         <div class="card-header" id="heading-{{forloop.counter}}">
             <h2 class="mb-0">
                 <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-{{forloop.counter}}">
@@ -49,7 +48,7 @@ List of Groups
                 </button>
             </h2>
         </div>
-        <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}" data-parent="#contentAccordion">
+        <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}">
             <div class="card-body">
                 Nodes: <br/>
                 <p style="margin-left:30px">
@@ -74,11 +73,10 @@ List of Groups
             </div>
         </div>
     </div>
-    {% endfor %}
+{% endfor %}
 {% else %}
     <div class="alert alert-danger" role="alert">
         There are no groups to display.
     </div>
 {% endif %}
-</div>
 {% endblock content_accordion %}

@@ -1,10 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% load ngutils %}
+
+{% block titleheader %}
+Results for {{ task.taskName }}
+{% endblock titleheader %}
+
+{% block navitems %}
+<li class="nav-item">
+<a class="nav-link" href="/dashboard">
+  <span data-feather="home"></span>
+  Dashboard
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link active" href="/tasks">
+  <span data-feather="clipboard"></span>
+  Tasks  <span class="sr-only">(current)</span>
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="/groups">
+  <span data-feather="package"></span>
+  Groups
+</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="/nodes">
+  <span data-feather="git-commit"></span>
+  Nodes
+</a>
+</li>
+{% endblock navitems %}
+
+{% block content_accordion %}
+{% for test in test_list %}
+    <div class="card w-75">
+      <div class="card-body">
+        <h5 class="card-title">{{ test|timeformat }}</h5>
+        <a href="results/{{ test }}/overview" class="btn btn-primary btn-sm">View Graph</a>
+        <a href="/Reports/{{task.taskName}}_{{task.taskUUID}}/{{ test }}/overview.xlsx" target="_blank" class="btn btn-primary btn-sm">Download Summary</a>
+        <form action="#" method="post" style="display:inline">
+          {% csrf_token %}
+          <button name="delete" class="btn btn-danger btn-sm" value="{{ test }}" onclick="return confirm('Are you sure you want to delete this item?');">Delete</button>
+        </form>
+      </div>
+    </div>
+{% endfor %}
+{% endblock content_accordion %}

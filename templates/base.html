@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
     {% block csslinks %}
     {% endblock %}
 
@@ -21,7 +22,9 @@
 
   <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
       <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="/dashboard">NGLogman Dashboard</a>
-      <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+      <form role="form" action="/search" method="GET" style="width: 100%">
+        <input class="form-control form-control-inline form-control-dark w-100" type="text" name="search_bar" placeholder="Search" aria-label="Search">
+      </form>
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
           <a class="nav-link" href="/admin">Admin</a>
@@ -48,6 +51,20 @@
               {% endblock toggleButton %}
             </div>
           </div>
+          {% if messages %}
+            {% for message in messages %}
+              {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR or message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+              <div class="alert alert-danger" role="alert">
+              {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+              <div class="alert alert-primary" role="alert">
+              {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+              <div class="alert alert-success" role="alert">
+              {% endif %}
+                  {{ message|safe }}
+              </div>
+            {% endfor %}
+          {% endif %}
+
           {% block content_accordion %}
           {% endblock content_accordion %}
         </main>

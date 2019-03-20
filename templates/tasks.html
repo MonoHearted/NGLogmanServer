@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load ngutils %}
 
 {% block titleheader %}
 Upcoming Tasks
@@ -32,10 +33,9 @@ Upcoming Tasks
 {% endblock navitems %}
 
 {% block content_accordion %}
-<div class="accordion" id="contentAccordion">
-{% if task_set %}
+{% if scheduled_tasks %}
     {% for task in scheduled_tasks %}
-        <div class="card border-success">
+        <div class="card border-success mt-2">
             <div class="card-header" id="heading-{{forloop.counter}}">
                 <h2 class="mb-0">
                     <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-{{forloop.counter}}">
@@ -43,7 +43,7 @@ Upcoming Tasks
                     </button>
                 </h2>
             </div>
-            <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}" data-parent="#contentAccordion">
+            <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}">
                 <div class="card-body">
                     Status: {{task.status}} <br/>
                     Creation Time: {{task.createTime}} <br/>
@@ -53,8 +53,17 @@ Upcoming Tasks
             </div>
         </div>
     {% endfor %}
+{% else %}
+    <div class="alert alert-danger" role="alert">
+        There are no upcoming tasks.
+    </div>
+{% endif %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">In Progress Tasks</h1>
+</div>
+{% if in_progress %}
     {% for task in in_progress %}
-        <div class="card border-warning">
+        <div class="card border-warning mt-2">
             <div class="card-header" id="heading-prog{{forloop.counter}}">
                 <h2 class="mb-0">
                     <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-prog{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-prog{{forloop.counter}}">
@@ -62,7 +71,7 @@ Upcoming Tasks
                     </button>
                 </h2>
             </div>
-            <div id="collapse-prog{{forloop.counter}}" class="collapse" aria-labelledby="heading-prog{{forloop.counter}}" data-parent="#contentAccordion">
+            <div id="collapse-prog{{forloop.counter}}" class="collapse" aria-labelledby="heading-prog{{forloop.counter}}">
                 <div class="card-body">
                     Status: {{task.status}} <br/>
                     Creation Time: {{task.createTime}} <br/>
@@ -74,18 +83,13 @@ Upcoming Tasks
             </div>
         </div>
     {% endfor %}
-{% else %}
-    <div class="alert alert-danger" role="alert">
-        There are no upcoming tasks.
-    </div>
 {% endif %}
-</div>
 {% if completed_tasks or failed_tasks %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Completed Tasks</h1>
 </div>
     {% for task in completed_tasks %}
-        <div class="card border-success">
+        <div class="card border-success mt-2">
             <div class="card-header" id="heading-comp{{forloop.counter}}">
                 <h2 class="mb-0">
                     <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-comp{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-comp{{forloop.counter}}">
@@ -93,21 +97,20 @@ Upcoming Tasks
                     </button>
                 </h2>
             </div>
-            <div id="collapse-comp{{forloop.counter}}" class="collapse" aria-labelledby="heading-comp{{forloop.counter}}" data-parent="#contentAccordion">
+            <div id="collapse-comp{{forloop.counter}}" class="collapse" aria-labelledby="heading-comp{{forloop.counter}}">
                 <div class="card-body">
                     Status: {{task.status}} <br/>
-                    Overview: <a href="tasks/{{task.taskUUID}}/overview">Graph</a><br/>
-                    Download: <a href="Reports/{{task.taskName}}_{{task.taskUUID}}/{{task.startTime|string|urlencode}}/overview.xlsx" target="_blank">perflog</a><br/>
                     Creation Time: {{task.createTime}} <br/>
                     Start Time: {{task.startTime}} <br/>
                     Task UUID: {{task.taskUUID}} <br/>
+                    <a href="tasks/{{task.taskUUID}}/results" class="btn btn-primary btn-sm mt-3">View Results</a><br/>
                 </div>
             </div>
         </div>
     {% endfor %}
     <br/>
     {% for task in failed_tasks %}
-        <div class="card border-danger">
+        <div class="card border-danger mt-2">
             <div class="card-header" id="heading-fail{{forloop.counter}}">
                 <h2 class="mb-0">
                     <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-fail{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-fail{{forloop.counter}}">
@@ -115,7 +118,7 @@ Upcoming Tasks
                     </button>
                 </h2>
             </div>
-            <div id="collapse-fail{{forloop.counter}}" class="collapse" aria-labelledby="heading-fail{{forloop.counter}}" data-parent="#contentAccordion">
+            <div id="collapse-fail{{forloop.counter}}" class="collapse" aria-labelledby="heading-fail{{forloop.counter}}">
                 <div class="card-body">
                     Status: {{task.status}} <br/>
                     Creation Time: {{task.createTime}} <br/>

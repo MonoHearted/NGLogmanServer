@@ -39,7 +39,6 @@ List of Available Nodes
 {% endblock toggleButton %}
 
 {% block content_accordion %}
-<div class="accordion" id="contentAccordion">
 {% if offline_node_set or available_node_set %}
 {% for node in available_node_set %}
     {% if node.status == 'Busy' %}
@@ -54,7 +53,7 @@ List of Available Nodes
                 </button>
             </h2>
         </div>
-        <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}" data-parent="#contentAccordion">
+        <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}">
             <div class="card-body">
                 Status: {{node.status}}<br/>
                 {% if node.status == 'Busy' %}
@@ -80,7 +79,7 @@ List of Available Nodes
                     </button>
                 </h2>
             </div>
-            <div id="collapse-offline-{{forloop.counter}}" class="collapse" aria-labelledby="heading-offline-{{forloop.counter}}" data-parent="#contentAccordion">
+            <div id="collapse-offline-{{forloop.counter}}" class="collapse" aria-labelledby="heading-offline-{{forloop.counter}}">
                 <div class="card-body">
                     Status: {{node.status}}<br/>
                     IP Address: {{node.ip}}<br/>
@@ -99,6 +98,5 @@ List of Available Nodes
         There are no nodes to display.
     </div>
 {% endif %}
-    </div>
 </div>
 {% endblock content_accordion %}

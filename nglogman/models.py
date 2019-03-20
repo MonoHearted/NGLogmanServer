@@ -1,5 +1,7 @@
 from django.db import models
+from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 import uuid
 
 class LGNode(models.Model):
@@ -8,10 +10,10 @@ class LGNode(models.Model):
     """
     hostname = models.CharField(max_length=200)
     ip = models.GenericIPAddressField()
-    port = models.IntegerField(default=50051)
+    port = models.IntegerField(default=50052)
     currentTask = models.UUIDField(null=True, editable=False)
     comments = models.TextField(default='')
-    status = models.CharField(max_length=20,
+    status = models.CharField(max_length=200,
                               editable=False, default='Offline')
     nodeUUID = models.UUIDField(primary_key=True, default=uuid.uuid4,
                                 null=False, editable=True)
@@ -36,13 +38,15 @@ class NodeGroup(models.Model):
 
 class Task(models.Model):
     taskName = models.CharField(max_length=200, null=False)
-    status = models.CharField(max_length=20,
+    status = models.CharField(max_length=200,
                               editable=False, default='Scheduled')
-    assignedNode = models.ForeignKey(NodeGroup, on_delete=models.CASCADE)
+    assignedNode = models.ForeignKey(NodeGroup, on_delete=models.CASCADE,
+                                     verbose_name='Assigned Group')
     createTime = models.DateTimeField(auto_now=True)
     startTime = models.DateTimeField(null=False)
-    duration = models.DurationField(null=False)
-    interval = models.PositiveSmallIntegerField(default=4)
+    duration = models.DurationField(null=False, help_text='{hh}:{mm}:{ss} or '
+                                                          '{%s}')
+    interval = models.PositiveSmallIntegerField(default=4, help_text='{%s}')
     taskUUID = models.UUIDField(primary_key=True, default=uuid.uuid4,
                                 editable=False)
 
@@ -50,13 +54,16 @@ class Task(models.Model):
         return self.taskName
 
     def clean(self):
-        from datetime import datetime, timedelta
-        super().clean()
-        if self.startTime < datetime.now:
+        super().clean_fields()
+        if self.startTime < timezone.now():
             raise ValidationError("Chosen start time has already passed.")
 
-        for task in Task.objects.all():
-            end = task.startTime + timedelta(seconds=task.interval)
+        qs = Task.objects.exclude(Q(status__exact='Completed') |
+                                  Q(status__contains='Failed'))
+        for task in qs:
+            end = task.startTime + task.duration
+            print(task.startTime <= self.startTime <= end)
+            print(task.startTime, self.startTime, end)
             if task.startTime <= self.startTime <= end:
                 busyNodes = []
                 for node in self.assignedNode.nodes.all():
@@ -64,4 +71,4 @@ class Task(models.Model):
                         busyNodes.append(node.ip)
                 raise ValidationError("The following nodes are unavailable"
                                       " at the specified time: \n %s"
-                                      % busyNodes)
+                                      % ', '.join(busyNodes))

@@ -2,7 +2,7 @@
 {% load ngutils %}
 
 {% block titleheader %}
-Upcoming Tasks
+Search Results for '{{ query }}'
 {% endblock titleheader %}
 
 {% block navitems %}
@@ -13,9 +13,9 @@ Upcoming Tasks
 </a>
 </li>
 <li class="nav-item">
-<a class="nav-link active" href="/tasks">
+<a class="nav-link" href="/tasks">
   <span data-feather="clipboard"></span>
-  Tasks  <span class="sr-only">(current)</span>
+  Tasks
 </a>
 </li>
 <li class="nav-item">
@@ -33,102 +33,101 @@ Upcoming Tasks
 {% endblock navitems %}
 
 {% block content_accordion %}
-<div class="accordion" id="contentAccordion">
-{% if scheduled_tasks %}
-    {% for task in scheduled_tasks %}
-        <div class="card border-success mt-2">
-            <div class="card-header" id="heading-{{forloop.counter}}">
-                <h2 class="mb-0">
-                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-{{forloop.counter}}">
-                        {{task.taskName}}
-                    </button>
-                </h2>
-            </div>
-            <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}" data-parent="#contentAccordion">
-                <div class="card-body">
-                    Status: {{task.status}} <br/>
-                    Creation Time: {{task.createTime}} <br/>
-                    Start Time: {{task.startTime}} <br/>
-                    Task UUID: {{task.taskUUID}} <br/>
+{% if m_nodes or m_grp or m_task %}
+    {% if m_nodes %}
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h3">Nodes</h1>
+        </div>
+        {% for node in m_nodes %}
+            <div class="card mt-2">
+                <div class="card-header" id="heading-offline-{{forloop.counter}}">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-offline-{{forloop.counter}}" aria-expanded="false" aria-controls="collapse-offline-{{forloop.counter}}">
+                            {{node.hostname}}
+                        </button>
+                    </h2>
+                </div>
+                <div id="collapse-offline-{{forloop.counter}}" class="collapse" aria-labelledby="heading-offline-{{forloop.counter}}">
+                    <div class="card-body">
+                        Status: {{node.status}}<br/>
+                        IP Address: {{node.ip}}<br/>
+                        Access Port: {{node.port}}<br/>
+                        UUID: {{node.nodeUUID}}<br/>
+                        {% if node.comments != '' %}
+                        Comments: node.comments
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+        {% endfor %}
+    {% endif %}
+    {% if m_grp %}
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h3">Groups</h1>
         </div>
-    {% endfor %}
+        {% for grp in m_grp %}
+            <div class="card mt-2">
+                <div class="card-header" id="heading-{{forloop.counter}}">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-{{forloop.counter}}">
+                            {{grp.groupname}} ({{grp.node_count}} nodes)
+                        </button>
+                    </h2>
+                </div>
+                <div id="collapse-{{forloop.counter}}" class="collapse" aria-labelledby="heading-{{forloop.counter}}">
+                    <div class="card-body">
+                        Nodes: <br/>
+                        <p style="margin-left:30px">
+                        {% for node in grp.nodes.all %}
+                            {% if node.status == 'Available' %}
+                                <status-indicator positive pulse></status-indicator>
+                            {% elif node.status == 'Busy' %}
+                                <status-indicator intermediary pulse></status-indicator>
+                            {% else %}
+                                <status-indicator negative pulse></status-indicator>
+                            {% endif %}
+                            {{node.hostname}} @ {{node.ip}}:{{node.port}}
+                            <br/>
+                        {% endfor %}
+                        </p>
+                        Current Task: {{grp.currentTask}}<br/>
+                        {% if grp.comments %}
+                            Comments: {{grp.comments}}<br/>
+                        {% endif %}
+                        <br/>
+                        <a href="/groups/{{grp.id}}/config">Configure...</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if m_task%}
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h3">Tasks</h1>
+        </div>
+        {% for task in m_task %}
+            <div class="card border-success mt-2">
+                <div class="card-header" id="heading-task-{{forloop.counter}}">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-task-{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-task-{{forloop.counter}}">
+                            {{task.taskName}}
+                        </button>
+                    </h2>
+                </div>
+                <div id="collapse-task-{{forloop.counter}}" class="collapse" aria-labelledby="heading-task-{{forloop.counter}}">
+                    <div class="card-body">
+                        Status: {{task.status}} <br/>
+                        Creation Time: {{task.createTime}} <br/>
+                        Start Time: {{task.startTime}} <br/>
+                        Task UUID: {{task.taskUUID}} <br/>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
 {% else %}
     <div class="alert alert-danger" role="alert">
-        There are no upcoming tasks.
+        Your search did not match anything.
     </div>
-{% endif %}
-</div>
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">In Progress Tasks</h1>
-</div>
-{% if in_progress %}
-    {% for task in in_progress %}
-        <div class="card border-warning mt-2">
-            <div class="card-header" id="heading-prog{{forloop.counter}}">
-                <h2 class="mb-0">
-                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-prog{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-prog{{forloop.counter}}">
-                        {{task.taskName}}
-                    </button>
-                </h2>
-            </div>
-            <div id="collapse-prog{{forloop.counter}}" class="collapse" aria-labelledby="heading-prog{{forloop.counter}}" data-parent="#contentAccordion">
-                <div class="card-body">
-                    Status: {{task.status}} <br/>
-                    Creation Time: {{task.createTime}} <br/>
-                    Start Time: {{task.startTime}} <br/>
-                    Duration: {{task.duration}} <br/>
-                    Interval: {{task.interval}}s <br/>
-                    Task UUID: {{task.taskUUID}} <br/>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
-{% endif %}
-{% if completed_tasks or failed_tasks %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Completed Tasks</h1>
-</div>
-    {% for task in completed_tasks %}
-        <div class="card border-success mt-2">
-            <div class="card-header" id="heading-comp{{forloop.counter}}">
-                <h2 class="mb-0">
-                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-comp{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-comp{{forloop.counter}}">
-                        {{task.taskName}}
-                    </button>
-                </h2>
-            </div>
-            <div id="collapse-comp{{forloop.counter}}" class="collapse" aria-labelledby="heading-comp{{forloop.counter}}" data-parent="#contentAccordion">
-                <div class="card-body">
-                    Status: {{task.status}} <br/>
-                    Creation Time: {{task.createTime}} <br/>
-                    Start Time: {{task.startTime}} <br/>
-                    Task UUID: {{task.taskUUID}} <br/>
-                    <a href="tasks/{{task.taskUUID}}/results" class="btn btn-primary btn-sm">Results</a><br/>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
-    <br/>
-    {% for task in failed_tasks %}
-        <div class="card border-danger mt-2">
-            <div class="card-header" id="heading-fail{{forloop.counter}}">
-                <h2 class="mb-0">
-                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse-fail{{forloop.counter}}" aria-expanded="true" aria-controls="collapse-fail{{forloop.counter}}">
-                        {{task.taskName}}
-                    </button>
-                </h2>
-            </div>
-            <div id="collapse-fail{{forloop.counter}}" class="collapse" aria-labelledby="heading-fail{{forloop.counter}}" data-parent="#contentAccordion">
-                <div class="card-body">
-                    Status: {{task.status}} <br/>
-                    Creation Time: {{task.createTime}} <br/>
-                    Start Time: {{task.startTime}} <br/>
-                    Task UUID: {{task.taskUUID}} <br/>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
 {% endif %}
 {% endblock content_accordion %}

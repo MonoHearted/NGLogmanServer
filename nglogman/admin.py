@@ -28,6 +28,9 @@ class TaskAdmin(admin.ModelAdmin):
         scheduleTask(obj)
         print('scheduleTask called')
         super().save_model(request, obj, form, change)
+        if 'Scheduled' not in obj.status:
+            obj.status = 'Scheduled'
+            obj.save()
 
     def delete_model(self, request, obj):
         import apscheduler.jobstores.base as base
@@ -35,6 +38,12 @@ class TaskAdmin(admin.ModelAdmin):
             SCHEDULER.remove_job(str(obj.taskUUID))
         except base.JobLookupError:
             pass
+        if obj.assignedNode.currentTask == obj.taskUUID:
+            obj.assignedNode.nodes.all().update(
+                status='Available', currentTask=None
+            )
+            obj.assignedNode.currentTask = None
+            obj.assignedNode.save()
         super().delete_model(request, obj)
 
     def delete_queryset(self, request, queryset):
@@ -44,7 +53,17 @@ class TaskAdmin(admin.ModelAdmin):
                 SCHEDULER.remove_job(str(obj.taskUUID))
             except base.JobLookupError:
                 pass
+
+            if obj.assignedNode.currentTask == obj.taskUUID:
+                obj.assignedNode.nodes.all().update(
+                    status='Available', currentTask=None
+                )
+                obj.assignedNode.currentTask = None
+                obj.assignedNode.save()
             obj.delete()
 
 
+admin.site.site_title = 'NGLogman Administration'
+admin.site.site_header = 'NGLogman Administration'
+admin.site.index_title = 'Admin Dashboard'
 admin.site.register(NodeGroup)

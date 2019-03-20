@@ -4,18 +4,17 @@ import os
 import uuid
 import re
 from openpyxl import Workbook, load_workbook
+from time import sleep
 
 from . import nglm_pb2
 from . import nglm_pb2_grpc
 from nglogman.models import LGNode, Task, NodeGroup
+from nglm_grpc.modules.Utility import timestamp
 from apscheduler.schedulers.background import BackgroundScheduler
 
 SCHEDULER = BackgroundScheduler()
-TIMEOUT_SECONDS = 2
+TIMEOUT_SECS = 2
 ROOT_DIR = os.path.dirname(sys.modules['__main__'].__file__)
-
-# TODO: Display all previous reports
-# TODO: Use pickle real time data streaming to alleviate RAM usage
 
 class ServerServicer(nglm_pb2_grpc.ServerServicer):
     def register(self, request, context):
@@ -61,9 +60,8 @@ class LoggingServicer(nglm_pb2_grpc.LoggingServicer):
             task = Task.objects.filter(taskUUID=node.currentTask)[0]
 
             saveResponse(request, os.path.join(
-                ROOT_DIR,
-                "Reports", task.taskName + '_' + str(task.taskUUID),
-                str(task.startTime),
+                ROOT_DIR, "Reports", task.taskName + '_' + str(task.taskUUID),
+                timestamp(task.startTime),
                 node.hostname + '_' + node.ip.split('.')[-1] + '_' +
                 str(task.taskUUID) + '_result.xlsx'))
             LGNode.objects.filter(nodeUUID=node.nodeUUID).update(
@@ -83,13 +81,18 @@ class LoggingServicer(nglm_pb2_grpc.LoggingServicer):
             task = Task.objects.filter(taskUUID=node.currentTask)[0]
 
             if 'Failed' in task.status:
-                task.update(status=task.status + '\n%s:%s' %
-                            (node.ip, request.exception))
+                task.status = task.status + '\n%s: %s' \
+                              % (node.ip, request.exception)
             else:
-                task.update(status='Failed: \n%s:%s' %
-                            (node.ip, request.exception))
+                task.status = 'Failed: \n%s: %s' \
+                            % (node.ip, request.exception)
+            task.save()
             NodeGroup.objects.filter(currentTask=task.taskUUID).update(
                 currentTask=None)
+            node.status = 'Available'
+            node.currentTask = None
+            node.save()
+
             res.success = True
         except:
             res.success = False
@@ -105,7 +108,7 @@ def addToServer(server):
 def validateTask(task):
     output_path = os.path.join(ROOT_DIR, "Reports",
                                task.taskName + '_' + str(task.taskUUID),
-                               str(task.startTime))
+                               timestamp(task.startTime))
     for node in task.assignedNode.nodes.all():
         path = os.path.join(
             output_path,
@@ -135,7 +138,7 @@ def validateTask(task):
         currentTask=None)
 
 
-def checkNodes(nodes):
+def checkNodes(nodes=LGNode.objects.all(), timeout=TIMEOUT_SECS, repeat=False):
     # returns list of ip:port of available nodes
     import time
     start = time.time()
@@ -146,7 +149,7 @@ def checkNodes(nodes):
             print('checking: %s' % node)
             channel = grpc.insecure_channel(nodeAddress)
             nglm_pb2_grpc.ServerStub(channel)\
-                .isAlive(nglm_pb2.query(query=''), timeout=TIMEOUT_SECONDS)
+                .isAlive(nglm_pb2.query(query=''), timeout=timeout)
             print('checked: %s' % node)
             availableNodes.append(node)
             channel.close()
@@ -155,7 +158,7 @@ def checkNodes(nodes):
             if hasattr(checkNodes, uuidAttr):
                 retries = getattr(checkNodes, uuidAttr)
                 if retries >= 10:
-                    LGNode.objects.filter(nodeUUID=node.uuid).delete()
+                    LGNode.objects.filter(nodeUUID=node.nodeUUID).delete()
                     delattr(checkNodes, uuidAttr)
                 else:
                     setattr(checkNodes, uuidAttr, retries + 1)
@@ -165,6 +168,9 @@ def checkNodes(nodes):
     end = time.time()
     print('Available nodes updated. Elapsed: %.2fs' % (end - start))
     updateNodes(availableNodes)
+    if repeat:
+        sleep(60)
+        return checkNodes(repeat=True)
     return availableNodes
 
 
@@ -246,13 +252,19 @@ def setConfig(nodes, f):
 
 
 def getConfig(nodes, size=1):
+    failedNodes = []
     for node in nodes:
-        nodeAddress = node.ip + ':' + str(node.port)
-        channel = grpc.insecure_channel(nodeAddress)
-        stub = nglm_pb2_grpc.LoggingStub(channel)
-        params = nglm_pb2.chunkSize(size=size)
+        try:
+            nodeAddress = node.ip + ':' + str(node.port)
+            channel = grpc.insecure_channel(nodeAddress)
+            stub = nglm_pb2_grpc.LoggingStub(channel)
+            params = nglm_pb2.chunkSize(size=size)
 
-        response = stub.getConfig(params)
-        saveResponse(response, os.path.join(
-            os.path.dirname(sys.modules['__main__'].__file__),
-            "nodeConfigs", str(node.nodeUUID) + '_config.ini'))
+            response = stub.getConfig(params, timeout=TIMEOUT_SECS)
+            saveResponse(response, os.path.join(
+                os.path.dirname(sys.modules['__main__'].__file__),
+                "nodeConfigs", str(node.nodeUUID) + '_config.ini'))
+        except:
+            failedNodes.append(node.ip)
+            continue
+    return failedNodes

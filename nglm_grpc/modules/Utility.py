@@ -16,6 +16,20 @@ def acronymTitleCase(string):
             string = string.replace(acronym, acronym.upper())
     return string
 
+def timestamp(dt):
+    return dt.isoformat().replace(':', '-').replace('.', '_').partition('+')[0]
+
+def to_aware(dt):
+    from datetime import datetime
+    from django.utils import timezone
+    if not isinstance(dt, datetime):
+        from dateutil import parser
+        dt = parser.parse(dt, ignoretz=True)
+
+    if timezone.is_naive(dt):
+        dt = dt.replace(tzinfo=timezone.utc)
+
+    return dt
 
 def convertBytesTo(unit):
     if (not unit in Units):

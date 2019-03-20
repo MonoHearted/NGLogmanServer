@@ -4,7 +4,7 @@ import itertools
 
 from django.template import loader
 from django.http import HttpResponse
-from django.shortcuts import redirect, render_to_response
+from django.shortcuts import redirect
 from django.contrib import messages
 from django.db.models import Count, Q
 
@@ -19,11 +19,35 @@ from bokeh.embed import components
 
 from . models import Task, LGNode, NodeGroup
 from nglm_grpc.gRPCMethods import setConfig, ROOT_DIR, getConfig, checkNodes
-from nglm_grpc.modules.Utility import acronymTitleCase
+from nglm_grpc.modules.Utility import acronymTitleCase, timestamp
 
-def searchView(request):
+def SearchView(request):
     template = loader.get_template('search.html')
-
+    if request.method == 'GET':
+        query = request.GET.get('search_bar').strip()
+        try:
+            uuid.UUID(query)
+        except ValueError:
+            context = {
+                'query': query,
+                'm_nodes': LGNode.objects.filter(
+                    Q(hostname__icontains=query) | Q(ip__icontains=query)
+                    | Q(comments__icontains=query)
+                ),
+                'm_grp': NodeGroup.objects.filter(
+                    Q(groupname__icontains=query) | Q(comments__icontains=query)
+                ).annotate(node_count=Count('nodes')),
+                'm_task': Task.objects.filter(taskName=query)
+            }
+        else:
+            query = uuid.UUID(query)
+            context = {
+                'query': query,
+                'm_nodes': LGNode.objects.filter(nodeUUID=query),
+                'm_grp': NodeGroup.objects.none(),
+                'm_task': Task.objects.filter(taskUUID=query)
+            }
+        return HttpResponse(template.render(context, request))
 
 def TaskListView(request):
     template = loader.get_template('tasks.html')
@@ -32,7 +56,25 @@ def TaskListView(request):
         'scheduled_tasks': Task.objects.filter(status='Scheduled'),
         'in_progress': Task.objects.filter(status='In Progress'),
         'completed_tasks': Task.objects.filter(status='Completed'),
-        'failed_tasks': Task.objects.filter(status__contains='Failed')
+        'failed_tasks': Task.objects.filter(status__contains='Failed'),
+    }
+    return HttpResponse(template.render(context, request))
+
+def TaskResultsView(request, taskUUID=''):
+    template = loader.get_template('results.html')
+    task = Task.objects.get(taskUUID=uuid.UUID(taskUUID))
+    path = os.path.join(ROOT_DIR, 'Reports', task.taskName + '_' + taskUUID)
+    if request.method == 'POST':
+        import shutil
+        val = request.POST.get('delete')
+        if os.path.isdir(os.path.join(path, val)):
+            shutil.rmtree(os.path.join(path, val))
+        messages.success(request, 'The test was successfully deleted.')
+        return redirect(request.path_info)
+
+    context = {
+        'task': task,
+        'test_list': sorted(next(os.walk(path))[1], reverse=True)
     }
     return HttpResponse(template.render(context, request))
 
@@ -44,7 +86,8 @@ def DashboardView(request):
             node_count=Count('nodes')
         ),
         'available_node_set': LGNode.objects.filter(status='Available'),
-        'task_set': Task.objects.exclude(status='Completed')
+        'task_set': Task.objects.filter(status='Scheduled'),
+        'in_progress': Task.objects.filter(status='In Progress')
     }
     return HttpResponse(template.render(context, request))
 
@@ -62,7 +105,7 @@ def GroupListView(request):
     template = loader.get_template('groups.html')
     if request.GET.get('refresh'):
         print('checking nodes...')
-        checkNodes(LGNode.objects.all())
+        checkNodes(nodes=LGNode.objects.all())
         return redirect('groups')
     context = {
         'node_groups': NodeGroup.objects.all().annotate(
@@ -76,7 +119,7 @@ def GroupListView(request):
 def NodeListView(request):
     if request.GET.get('refresh'):
         print('checking nodes...')
-        checkNodes(LGNode.objects.all())
+        checkNodes(nodes=LGNode.objects.all())
         return redirect('nodes')
     template = loader.get_template('nodes.html')
     context = {
@@ -89,7 +132,19 @@ def NodeListView(request):
 def ConfigUpload(request, groupID=''):
     from .forms import ConfigForm
     template = loader.get_template('config.html')
-    getConfig(NodeGroup.objects.get(id=groupID).nodes.all())
+    offline = NodeGroup.objects.get(id=groupID).nodes.filter(
+            status__iexact="offline")
+    if offline:
+        offline = ['<li>' + node.ip + ':' + str(node.port) + '</li>'
+                   for node in offline]
+        msg = '''
+        The following nodes are offline: <ul>%s</ul>
+        Updated configs will not be fetched and uploaded configs will not be applied.
+        ''' % '\n'.join(offline)
+        messages.warning(request, msg)
+    else:
+        getConfig(NodeGroup.objects.get(id=groupID).nodes.all())
+
     if request.method == 'POST':
         form = ConfigForm(groupID, request.POST, request.FILES)
         if form.is_valid():
@@ -106,19 +161,21 @@ def ConfigUpload(request, groupID=''):
     context = {
         'form': form,
         'group_name': NodeGroup.objects.get(id=groupID).groupname,
-        'all_nodes': NodeGroup.objects.get(id=groupID).nodes.all(),
-        'offline_nodes': NodeGroup.objects.get(id=groupID).nodes.filter(
-            status__iexact="offline"
-        )
+        'all_nodes': NodeGroup.objects.get(id=groupID).nodes.all()
     }
     return HttpResponse(template.render(context, request))
 
-def overviewGraph(request, taskUUID=''):
+def overviewGraph(request, taskUUID='', testTime=''):
+    from dateutil import parser
+    dts = testTime.partition('T')
+    dts = dts[0] + dts[1] + dts[2].replace('-', ':')
+    testTime = parser.parse(dts, ignoretz=True)
     template = loader.get_template('overview.html')
     task = Task.objects.get(taskUUID=uuid.UUID(taskUUID))
     xlsx = pd.ExcelFile(os.path.join(
         ROOT_DIR, "Reports", task.taskName + '_' + taskUUID,
-        str(task.startTime), 'overview.xlsx'))
+        timestamp(testTime),
+        'overview.xlsx'))
     dfs = pd.read_excel(xlsx, sheet_name=None)
     full_df = pd.DataFrame()
     for name, sheet in dfs.items():
