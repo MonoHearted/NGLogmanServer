@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 import uuid
 
 class LGNode(models.Model):
@@ -47,3 +48,20 @@ class Task(models.Model):
 
     def __str__(self):
         return self.taskName
+
+    def clean(self):
+        from datetime import datetime, timedelta
+        super().clean()
+        if self.startTime < datetime.now:
+            raise ValidationError("Chosen start time has already passed.")
+
+        for task in Task.objects.all():
+            end = task.startTime + timedelta(seconds=task.interval)
+            if task.startTime <= self.startTime <= end:
+                busyNodes = []
+                for node in self.assignedNode.nodes.all():
+                    if node in task.assignedNode.nodes.all():
+                        busyNodes.append(node.ip)
+                raise ValidationError("The following nodes are unavailable"
+                                      " at the specified time: \n %s"
+                                      % busyNodes)

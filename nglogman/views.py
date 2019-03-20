@@ -117,7 +117,8 @@ def overviewGraph(request, taskUUID=''):
     template = loader.get_template('overview.html')
     task = Task.objects.get(taskUUID=uuid.UUID(taskUUID))
     xlsx = pd.ExcelFile(os.path.join(
-        ROOT_DIR, "Reports", task.taskName + '_' + taskUUID, 'overview.xlsx'))
+        ROOT_DIR, "Reports", task.taskName + '_' + taskUUID,
+        str(task.startTime), 'overview.xlsx'))
     dfs = pd.read_excel(xlsx, sheet_name=None)
     full_df = pd.DataFrame()
     for name, sheet in dfs.items():

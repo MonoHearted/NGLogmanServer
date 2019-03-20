@@ -83,6 +83,11 @@ class LoggingStub(object):
         request_serializer=nglm__grpc_dot_nglm__pb2.chunks.SerializeToString,
         response_deserializer=nglm__grpc_dot_nglm__pb2.response.FromString,
         )
+    self.err = channel.unary_unary(
+        '/nglm_grpc.Logging/err',
+        request_serializer=nglm__grpc_dot_nglm__pb2.exception.SerializeToString,
+        response_deserializer=nglm__grpc_dot_nglm__pb2.response.FromString,
+        )
     self.getConfig = channel.unary_stream(
         '/nglm_grpc.Logging/getConfig',
         request_serializer=nglm__grpc_dot_nglm__pb2.chunkSize.SerializeToString,
@@ -107,6 +112,13 @@ class LoggingServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def output(self, request_iterator, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def err(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -138,6 +150,11 @@ def add_LoggingServicer_to_server(servicer, server):
       'output': grpc.stream_unary_rpc_method_handler(
           servicer.output,
           request_deserializer=nglm__grpc_dot_nglm__pb2.chunks.FromString,
+          response_serializer=nglm__grpc_dot_nglm__pb2.response.SerializeToString,
+      ),
+      'err': grpc.unary_unary_rpc_method_handler(
+          servicer.err,
+          request_deserializer=nglm__grpc_dot_nglm__pb2.exception.FromString,
           response_serializer=nglm__grpc_dot_nglm__pb2.response.SerializeToString,
       ),
       'getConfig': grpc.unary_stream_rpc_method_handler(

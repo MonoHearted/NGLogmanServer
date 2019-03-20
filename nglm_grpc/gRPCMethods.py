@@ -14,6 +14,9 @@ SCHEDULER = BackgroundScheduler()
 TIMEOUT_SECONDS = 2
 ROOT_DIR = os.path.dirname(sys.modules['__main__'].__file__)
 
+# TODO: Display all previous reports
+# TODO: Use pickle real time data streaming to alleviate RAM usage
+
 class ServerServicer(nglm_pb2_grpc.ServerServicer):
     def register(self, request, context):
         res = nglm_pb2.registerResponse()
@@ -25,7 +28,7 @@ class ServerServicer(nglm_pb2_grpc.ServerServicer):
             if matchedNodes.count() == 0:
                 res.uuid = request.uuid if request.uuid else str(uuid.uuid4())
                 LGNode.objects.create(hostname=request.hostname,
-                                       ip=request.ipv4, port=request.port,
+                                      ip=request.ipv4, port=request.port,
                                       nodeUUID=uuid.UUID(res.uuid))
                 print('Registered new node. Hostname: ' +
                       request.hostname + ' IP: ' + request.ipv4 +
@@ -60,12 +63,34 @@ class LoggingServicer(nglm_pb2_grpc.LoggingServicer):
             saveResponse(request, os.path.join(
                 ROOT_DIR,
                 "Reports", task.taskName + '_' + str(task.taskUUID),
+                str(task.startTime),
                 node.hostname + '_' + node.ip.split('.')[-1] + '_' +
                 str(task.taskUUID) + '_result.xlsx'))
             LGNode.objects.filter(nodeUUID=node.nodeUUID).update(
                 status="Available", currentTask=None)
             res.success = True
             validateTask(task)
+        except:
+            res.success = False
+        return res
+
+    def err(self, request, context):
+        res = nglm_pb2.response()
+        try:
+            metadata = context.invocation_metadata()
+            node_uuid = uuid.UUID(metadata[0].value)
+            node = LGNode.objects.filter(nodeUUID=node_uuid)[0]
+            task = Task.objects.filter(taskUUID=node.currentTask)[0]
+
+            if 'Failed' in task.status:
+                task.update(status=task.status + '\n%s:%s' %
+                            (node.ip, request.exception))
+            else:
+                task.update(status='Failed: \n%s:%s' %
+                            (node.ip, request.exception))
+            NodeGroup.objects.filter(currentTask=task.taskUUID).update(
+                currentTask=None)
+            res.success = True
         except:
             res.success = False
         return res
@@ -79,7 +104,8 @@ def addToServer(server):
 
 def validateTask(task):
     output_path = os.path.join(ROOT_DIR, "Reports",
-                               task.taskName + '_' + str(task.taskUUID))
+                               task.taskName + '_' + str(task.taskUUID),
+                               str(task.startTime))
     for node in task.assignedNode.nodes.all():
         path = os.path.join(
             output_path,
@@ -153,6 +179,7 @@ def scheduleTask(task):
     print('Task with UUID %s scheduled.' % task.taskUUID)
     return job
 
+
 def updateNodes(nodes):
     LGNode.objects.exclude(status="Busy").update(status="Offline")
     for node in nodes:
@@ -176,7 +203,7 @@ def startLogging(nodes, task):
             stub = nglm_pb2_grpc.LoggingStub(channel)
             itr = task.interval if task.interval else 2
             dur = int(task.duration.total_seconds()) if task.duration else 4
-            params = nglm_pb2.params(pname='httpd', interval=itr, duration=dur)
+            params = nglm_pb2.params(pname='', interval=itr, duration=dur)
 
             response = stub.start(params)
             task.assignedNode.currentTask = task.taskUUID
@@ -191,12 +218,14 @@ def startLogging(nodes, task):
             print(str(node) + ' was not available for task.')
             continue
 
+
 def getChunks(f):
     while True:
         chunk = f.read(1024)
         if not chunk:
             break
         yield nglm_pb2.chunks(buffer=chunk)
+
 
 def setConfig(nodes, f):
     failedNodes = []
@@ -214,6 +243,7 @@ def setConfig(nodes, f):
             failedNodes.append(node.ip)
             continue
     return failedNodes
+
 
 def getConfig(nodes, size=1):
     for node in nodes:

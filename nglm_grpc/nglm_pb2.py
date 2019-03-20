@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='nglm_grpc',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x14nglm_grpc/nglm.proto\x12\tnglm_grpc\"H\n\nclientInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\x0c\n\x04ipv4\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\x12\x0c\n\x04uuid\x18\x04 \x01(\t\"1\n\x10registerResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0f\n\x07success\x18\x02 \x01(\x08\"\x1b\n\x08response\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x16\n\x05query\x12\r\n\x05query\x18\x01 \x01(\t\"\x19\n\tchunkSize\x12\x0c\n\x04size\x18\x01 \x01(\x01\"Z\n\x06params\x12\x0b\n\x03pid\x18\x01 \x01(\x05\x12\r\n\x05pname\x18\x02 \x01(\t\x12\x10\n\x08interval\x18\x03 \x01(\x05\x12\x10\n\x08\x64uration\x18\x04 \x01(\x05\x12\x10\n\x08taskUUID\x18\x05 \x01(\t\"\x18\n\x06\x63hunks\x12\x0e\n\x06\x62uffer\x18\x01 \x01(\x0c\x32~\n\x06Server\x12@\n\x08register\x12\x15.nglm_grpc.clientInfo\x1a\x1b.nglm_grpc.registerResponse\"\x00\x12\x32\n\x07isAlive\x12\x10.nglm_grpc.query\x1a\x13.nglm_grpc.response\"\x00\x32\xe5\x01\n\x07Logging\x12\x31\n\x05start\x12\x11.nglm_grpc.params\x1a\x13.nglm_grpc.response\"\x00\x12\x34\n\x06output\x12\x11.nglm_grpc.chunks\x1a\x13.nglm_grpc.response\"\x00(\x01\x12\x38\n\tgetConfig\x12\x14.nglm_grpc.chunkSize\x1a\x11.nglm_grpc.chunks\"\x00\x30\x01\x12\x37\n\tsetConfig\x12\x11.nglm_grpc.chunks\x1a\x13.nglm_grpc.response\"\x00(\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x14nglm_grpc/nglm.proto\x12\tnglm_grpc\"H\n\nclientInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\x0c\n\x04ipv4\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\x12\x0c\n\x04uuid\x18\x04 \x01(\t\"1\n\x10registerResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0f\n\x07success\x18\x02 \x01(\x08\"\x1b\n\x08response\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x16\n\x05query\x12\r\n\x05query\x18\x01 \x01(\t\"\x1e\n\texception\x12\x11\n\texception\x18\x01 \x01(\t\"\x19\n\tchunkSize\x12\x0c\n\x04size\x18\x01 \x01(\x01\"Z\n\x06params\x12\x0b\n\x03pid\x18\x01 \x01(\x05\x12\r\n\x05pname\x18\x02 \x01(\t\x12\x10\n\x08interval\x18\x03 \x01(\x05\x12\x10\n\x08\x64uration\x18\x04 \x01(\x05\x12\x10\n\x08taskUUID\x18\x05 \x01(\t\"\x18\n\x06\x63hunks\x12\x0e\n\x06\x62uffer\x18\x01 \x01(\x0c\x32~\n\x06Server\x12@\n\x08register\x12\x15.nglm_grpc.clientInfo\x1a\x1b.nglm_grpc.registerResponse\"\x00\x12\x32\n\x07isAlive\x12\x10.nglm_grpc.query\x1a\x13.nglm_grpc.response\"\x00\x32\x99\x02\n\x07Logging\x12\x31\n\x05start\x12\x11.nglm_grpc.params\x1a\x13.nglm_grpc.response\"\x00\x12\x34\n\x06output\x12\x11.nglm_grpc.chunks\x1a\x13.nglm_grpc.response\"\x00(\x01\x12\x32\n\x03\x65rr\x12\x14.nglm_grpc.exception\x1a\x13.nglm_grpc.response\"\x00\x12\x38\n\tgetConfig\x12\x14.nglm_grpc.chunkSize\x1a\x11.nglm_grpc.chunks\"\x00\x30\x01\x12\x37\n\tsetConfig\x12\x11.nglm_grpc.chunks\x1a\x13.nglm_grpc.response\"\x00(\x01\x62\x06proto3')
 )
 
 
@@ -177,6 +177,37 @@ _QUERY = _descriptor.Descriptor(
 )
 
 
+_EXCEPTION = _descriptor.Descriptor(
+  name='exception',
+  full_name='nglm_grpc.exception',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='exception', full_name='nglm_grpc.exception.exception', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=213,
+  serialized_end=243,
+)
+
+
 _CHUNKSIZE = _descriptor.Descriptor(
   name='chunkSize',
   full_name='nglm_grpc.chunkSize',
@@ -203,8 +234,8 @@ _CHUNKSIZE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=213,
-  serialized_end=238,
+  serialized_start=245,
+  serialized_end=270,
 )
 
 
@@ -262,8 +293,8 @@ _PARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=240,
-  serialized_end=330,
+  serialized_start=272,
+  serialized_end=362,
 )
 
 
@@ -293,14 +324,15 @@ _CHUNKS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=332,
-  serialized_end=356,
+  serialized_start=364,
+  serialized_end=388,
 )
 
 DESCRIPTOR.message_types_by_name['clientInfo'] = _CLIENTINFO
 DESCRIPTOR.message_types_by_name['registerResponse'] = _REGISTERRESPONSE
 DESCRIPTOR.message_types_by_name['response'] = _RESPONSE
 DESCRIPTOR.message_types_by_name['query'] = _QUERY
+DESCRIPTOR.message_types_by_name['exception'] = _EXCEPTION
 DESCRIPTOR.message_types_by_name['chunkSize'] = _CHUNKSIZE
 DESCRIPTOR.message_types_by_name['params'] = _PARAMS
 DESCRIPTOR.message_types_by_name['chunks'] = _CHUNKS
@@ -334,6 +366,13 @@ query = _reflection.GeneratedProtocolMessageType('query', (_message.Message,), d
   ))
 _sym_db.RegisterMessage(query)
 
+exception = _reflection.GeneratedProtocolMessageType('exception', (_message.Message,), dict(
+  DESCRIPTOR = _EXCEPTION,
+  __module__ = 'nglm_grpc.nglm_pb2'
+  # @@protoc_insertion_point(class_scope:nglm_grpc.exception)
+  ))
+_sym_db.RegisterMessage(exception)
+
 chunkSize = _reflection.GeneratedProtocolMessageType('chunkSize', (_message.Message,), dict(
   DESCRIPTOR = _CHUNKSIZE,
   __module__ = 'nglm_grpc.nglm_pb2'
@@ -363,8 +402,8 @@ _SERVER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=358,
-  serialized_end=484,
+  serialized_start=390,
+  serialized_end=516,
   methods=[
   _descriptor.MethodDescriptor(
     name='register',
@@ -396,8 +435,8 @@ _LOGGING = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=1,
   serialized_options=None,
-  serialized_start=487,
-  serialized_end=716,
+  serialized_start=519,
+  serialized_end=800,
   methods=[
   _descriptor.MethodDescriptor(
     name='start',
@@ -418,9 +457,18 @@ _LOGGING = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
+    name='err',
+    full_name='nglm_grpc.Logging.err',
+    index=2,
+    containing_service=None,
+    input_type=_EXCEPTION,
+    output_type=_RESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
     name='getConfig',
     full_name='nglm_grpc.Logging.getConfig',
-    index=2,
+    index=3,
     containing_service=None,
     input_type=_CHUNKSIZE,
     output_type=_CHUNKS,
@@ -429,7 +477,7 @@ _LOGGING = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='setConfig',
     full_name='nglm_grpc.Logging.setConfig',
-    index=3,
+    index=4,
     containing_service=None,
     input_type=_CHUNKS,
     output_type=_RESPONSE,

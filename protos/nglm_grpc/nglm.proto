@@ -30,8 +30,13 @@ message query {
 service Logging {
 	rpc start(params) returns (response) {}
 	rpc output(stream chunks) returns (response) {}
+	rpc err(exception) returns (response) {}
 	rpc getConfig(chunkSize) returns (stream chunks) {}
 	rpc setConfig(stream chunks) returns (response) {}
+}
+
+message exception {
+	string exception = 1;
 }
 
 message chunkSize {
