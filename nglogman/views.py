@@ -21,7 +21,18 @@ from . models import Task, LGNode, NodeGroup
 from nglm_grpc.gRPCMethods import setConfig, ROOT_DIR, getConfig, checkNodes
 from nglm_grpc.modules.Utility import acronymTitleCase, timestamp
 
+"""
+Contains the various views used for the Django webserver. Functional views
+are used in conjunction with Jinja2 templating to render the pages.
+"""
+
 def SearchView(request):
+    """
+    The view for the search results page. Searches for UUID matches, or
+    matches in comments, IP, name, etc.
+    :param request: The django HTTP request object.
+    :return: An HTTP Response containing the rendered search results.
+    """
     template = loader.get_template('search.html')
     if request.method == 'GET':
         query = request.GET.get('search_bar').strip()
@@ -50,6 +61,11 @@ def SearchView(request):
         return HttpResponse(template.render(context, request))
 
 def TaskListView(request):
+    """
+    A view for the task page. Passes objects into Jinja2 tempate context.
+    :param request: Django HTTP request object.
+    :return: HTTP Response containing the rendered task page.
+    """
     template = loader.get_template('tasks.html')
     context = {
         'task_set': Task.objects.exclude(status='Completed'),
@@ -61,6 +77,14 @@ def TaskListView(request):
     return HttpResponse(template.render(context, request))
 
 def TaskResultsView(request, taskUUID=''):
+    """
+    A view for displaying the task results, with links to the graph as well as
+    the excel file download for each run of the task. The task files can also
+    be deleted here.
+    :param request: Django HTTP request object.
+    :param taskUUID: The TaskUUID, automatically obtained from the URL path.
+    :return: HTTP Response containing the rendered task result view.
+    """
     template = loader.get_template('results.html')
     task = Task.objects.get(taskUUID=uuid.UUID(taskUUID))
     path = os.path.join(ROOT_DIR, 'Reports', task.taskName + '_' + taskUUID)
@@ -80,6 +104,11 @@ def TaskResultsView(request, taskUUID=''):
 
 
 def DashboardView(request):
+    """
+    The view for the landing page (dashboard). Summarizes Tasks/Nodes/Groups.
+    :param request: Django HTTP Request object.
+    :return: An HTTP Response containing the rendered Dashboard view.
+    """
     template = loader.get_template('dashboard.html')
     context = {
         'node_groups': NodeGroup.objects.all().annotate(
@@ -93,6 +122,14 @@ def DashboardView(request):
 
 
 def outputDownload(request, document_root, path=''):
+    """
+    Function called for file download. Redirects download links to the
+    corresponding files in the local file hierarchy.
+    :param request: Django HTTP Request object. Unused but required parameter.
+    :param document_root: The path to the directory containing hosted files.
+    :param path: The relative path to the desired file.
+    :return: A response containing the desired file.
+    """
     filePath = os.path.join(document_root, path)
     with open(filePath, 'rb') as f:
         response = HttpResponse(f.read())
@@ -102,6 +139,12 @@ def outputDownload(request, document_root, path=''):
 
 
 def GroupListView(request):
+    """
+    View for the group list page. Includes a refresh button for a manual
+    health check on node status.
+    :param request: Django HTTP Request object.
+    :return: HTTP Response containing the rendered group list view.
+    """
     template = loader.get_template('groups.html')
     if request.GET.get('refresh'):
         print('checking nodes...')
@@ -117,6 +160,12 @@ def GroupListView(request):
 
 
 def NodeListView(request):
+    """
+    View for the node list page. Includes a refresh button for a manual
+    health check on the node status.
+    :param request: Django HTTP Request object.
+    :return: HTTP Response containing the rendered node list view.
+    """
     if request.GET.get('refresh'):
         print('checking nodes...')
         checkNodes(nodes=LGNode.objects.all())
@@ -130,6 +179,16 @@ def NodeListView(request):
 
 
 def ConfigUpload(request, groupID=''):
+    """
+    The view used for uploading of configuration files to clients. A warning
+    is returned if any of the nodes ni the group are offline. An error is
+    displayed if any of the configs failed to be set. The POST method submits
+    the form and begins the upload process.
+    :param request: Django HTTP requset object.
+    :param groupID: ID of the group to set configs for. Set in the URL.
+    :return: HTTP Response containing the rendered view, and any messages to be
+    displayed.
+    """
     from .forms import ConfigForm
     template = loader.get_template('config.html')
     offline = NodeGroup.objects.get(id=groupID).nodes.filter(
@@ -166,6 +225,14 @@ def ConfigUpload(request, groupID=''):
     return HttpResponse(template.render(context, request))
 
 def overviewGraph(request, taskUUID='', testTime=''):
+    """
+    The view used for rendering the overview graphs using the Bokeh module.
+    Graphs data from all nodes for each metric.
+    :param request: The HTTP Request object.
+    :param taskUUID: The UUID of the task to graph.
+    :param testTime: The start time of the test to graph.
+    :return: HTTP Response containing the rendered view.
+    """
     from dateutil import parser
     dts = testTime.partition('T')
     dts = dts[0] + dts[1] + dts[2].replace('-', ':')

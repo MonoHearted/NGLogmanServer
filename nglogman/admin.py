@@ -6,6 +6,9 @@ from nglm_grpc.gRPCMethods import scheduleTask, SCHEDULER
 # Register your models here.
 @admin.register(LGNode)
 class ReadOnlyAdmin(admin.ModelAdmin):
+    """
+    A read-only ModelAdmin template that allows for deletion but not addition.
+    """
     readonly_fields = []
     change_form_template = "admin/admin_readonly.html"
 
@@ -23,7 +26,11 @@ class ReadOnlyAdmin(admin.ModelAdmin):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-
+    """
+    ModelAdmin for Task. Delete and save methods are modified to accommodate
+    task scheduling/modification/cancellation by modifying the model through
+    the admin page.
+    """
     def save_model(self, request, obj, form, change):
         scheduleTask(obj)
         print('scheduleTask called')

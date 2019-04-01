@@ -12,12 +12,24 @@ from nglogman.models import LGNode, Task, NodeGroup
 from nglm_grpc.modules.Utility import timestamp
 from apscheduler.schedulers.background import BackgroundScheduler
 
+"""
+Contains the methods that relate to the gRPC methods used in NGLogman. This
+contain procedures called by the client to the server, and vice versa.
+"""
+
 SCHEDULER = BackgroundScheduler()
 TIMEOUT_SECS = 2
 ROOT_DIR = os.path.dirname(sys.modules['__main__'].__file__)
 
 class ServerServicer(nglm_pb2_grpc.ServerServicer):
     def register(self, request, context):
+        """
+        Register procedure called by client. Should not be called manually.
+        :param request: Attributes are hostname, ipv4, port, uuid. Contains
+        the information sent by the client in the registration call.
+        :param context: gRPC context object. Unused in this function.
+        :return: A boolean to the client describing success.
+        """
         res = nglm_pb2.registerResponse()
         try:
             matchedNodes = LGNode.objects.filter(
@@ -45,6 +57,12 @@ class ServerServicer(nglm_pb2_grpc.ServerServicer):
         return res
 
     def isAlive(self, request, context):
+        """
+        A simple receiver for a client-to-server healthcheck.
+        :param request: gRPC request object. Unused in this function.
+        :param context: gRPC context object. Unused in this function.
+        :return: Always returns True (A failed check would not reach.)
+        """
         res = nglm_pb2.response()
         res.success = True
         return res
@@ -52,6 +70,13 @@ class ServerServicer(nglm_pb2_grpc.ServerServicer):
 
 class LoggingServicer(nglm_pb2_grpc.LoggingServicer):
     def output(self, request, context):
+        """
+        Receives a bytestream of the excel file returned by clients at the end
+        of task execution. Saves the output file, and checks for completion.
+        :param request: A byte stream representing the output xlsx from client.
+        :param context: Metadata in context provides the UUID of the client.
+        :return: A boolean representing whether the call was successful.
+        """
         res = nglm_pb2.response()
         try:
             metadata = context.invocation_metadata()
@@ -73,6 +98,13 @@ class LoggingServicer(nglm_pb2_grpc.LoggingServicer):
         return res
 
     def err(self, request, context):
+        """
+        Called by the client should an error be raised during execution.
+        Updates the status of the task to represent the failure.
+        :param request: Contains the error message raised by the client.
+        :param context: Metadata contains the UUID of the client.
+        :return: Boolean representing error receiving success.
+        """
         res = nglm_pb2.response()
         try:
             metadata = context.invocation_metadata()
@@ -101,11 +133,24 @@ class LoggingServicer(nglm_pb2_grpc.LoggingServicer):
 
 def addToServer(server):
     # Adds services to server, called on server start
+    """
+    Registers the gRPC Services on the server. Should new services be
+    added, add their Servicer below.
+    :param server: The grpc.server instance to add the servicer to.
+    :return: None.
+    """
     nglm_pb2_grpc.add_ServerServicer_to_server(ServerServicer(), server)
     nglm_pb2_grpc.add_LoggingServicer_to_server(LoggingServicer(), server)
 
 
 def validateTask(task):
+    """
+    Called when the server receives an output, and checks for task completion.
+    If the task is completed, generate the overview workbook, and update task
+    status.
+    :param task: The task to check completion for.
+    :return: A boolean representing whether the task is completed or not.
+    """
     output_path = os.path.join(ROOT_DIR, "Reports",
                                task.taskName + '_' + str(task.taskUUID),
                                timestamp(task.startTime))
@@ -136,10 +181,20 @@ def validateTask(task):
         status="Completed")
     NodeGroup.objects.filter(currentTask=task.taskUUID).update(
         currentTask=None)
+    return True
 
 
 def checkNodes(nodes=LGNode.objects.all(), timeout=TIMEOUT_SECS, repeat=False):
-    # returns list of ip:port of available nodes
+    """
+    Makes a health check to the provided clients, and updates status
+    accordingly. If a node fails enough health-checks, it is
+    removed from the database.
+    :param nodes: A QuerySet or list-like object of clients to check.
+    :param timeout: Time to respond before considering a node offline.
+    :param repeat: Whether to recursively check nodes every 60s. Mainly used
+    for the automatic checks done in the background on startup.
+    :return:
+    """
     import time
     start = time.time()
     availableNodes = []
@@ -175,6 +230,12 @@ def checkNodes(nodes=LGNode.objects.all(), timeout=TIMEOUT_SECS, repeat=False):
 
 
 def scheduleTask(task):
+    """
+    Adds a task to the APScheduler BackgroundScheduler instance. Called on
+    task creation.
+    :param task: The Task model instance to schedule.
+    :return: Returns an APScheduler job object.
+    """
     job = SCHEDULER.add_job(
         startLogging, replace_existing=True,
         trigger='date', args=(task.assignedNode.nodes.all(), task),
@@ -194,6 +255,12 @@ def updateNodes(nodes):
 
 
 def saveResponse(chunks, path):
+    """
+    Saves a list-like object of byte chunks to a file.
+    :param chunks: A list-like object of byte chunks.
+    :param path: The destination path for the file.
+    :return: None.
+    """
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'wb') as f:
         for chunk in chunks:
@@ -202,6 +269,12 @@ def saveResponse(chunks, path):
 
 
 def startLogging(nodes, task):
+    """
+    Starts logging for a task, and updates the statuses accordingly.
+    :param nodes: The nodes to begin the task for.
+    :param task: The task to be executed.
+    :return: None.
+    """
     for node in nodes:
         nodeAddress = node.ip + ':' + str(node.port)
         try:
@@ -234,6 +307,12 @@ def getChunks(f):
 
 
 def setConfig(nodes, f):
+    """
+    Sets the configuration file for the given clients, overriding the current.
+    :param nodes: The nodes to set this configuration for.
+    :param f: The File object of the configuration.
+    :return: A list of clients in which setting failed. (Generally offline)
+    """
     failedNodes = []
     chunkList = list(getChunks(f))
     for node in nodes:
@@ -252,6 +331,12 @@ def setConfig(nodes, f):
 
 
 def getConfig(nodes, size=1):
+    """
+    Retrieves the current configuration file(s) for the given client(s).
+    :param nodes: The clients to retrieve the file from.
+    :param size: The desired chunk size in KB. Defaults to 1KB.
+    :return: Returns a list of clients that failed. (Generally offline)
+    """
     failedNodes = []
     for node in nodes:
         try:

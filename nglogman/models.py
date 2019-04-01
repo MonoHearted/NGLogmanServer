@@ -6,7 +6,7 @@ import uuid
 
 class LGNode(models.Model):
     """
-    A data model map a task entity to db
+    A data model that maps a Node entity to database
     """
     hostname = models.CharField(max_length=200)
     ip = models.GenericIPAddressField()
@@ -27,6 +27,9 @@ class LGNode(models.Model):
 
 
 class NodeGroup(models.Model):
+    """
+    A data model that reflects a group of LGNode instances.
+    """
     groupname = models.CharField(max_length=200)
     currentTask = models.UUIDField(null=True, editable=False)
     comments = models.TextField(default='', blank=True)
@@ -37,6 +40,9 @@ class NodeGroup(models.Model):
 
 
 class Task(models.Model):
+    """
+    A data model that maps a Node entity to database
+    """
     taskName = models.CharField(max_length=200, null=False)
     status = models.CharField(max_length=200,
                               editable=False, default='Scheduled')
@@ -62,8 +68,6 @@ class Task(models.Model):
                                   Q(status__contains='Failed'))
         for task in qs:
             end = task.startTime + task.duration
-            print(task.startTime <= self.startTime <= end)
-            print(task.startTime, self.startTime, end)
             if task.startTime <= self.startTime <= end:
                 busyNodes = []
                 for node in self.assignedNode.nodes.all():

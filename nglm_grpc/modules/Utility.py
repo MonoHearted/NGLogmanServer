@@ -17,9 +17,19 @@ def acronymTitleCase(string):
     return string
 
 def timestamp(dt):
+    """
+    Convert a datetime object to the timestamp format used for file names.
+    :param dt: The datetime object
+    :return: The formatted datetime string
+    """
     return dt.isoformat().replace(':', '-').replace('.', '_').partition('+')[0]
 
 def to_aware(dt):
+    """
+    Converts a timezone-naive datetime to a datetime-aware object.
+    :param dt: A datetime object.
+    :return: A timezone-aware datetime object.
+    """
     from datetime import datetime
     from django.utils import timezone
     if not isinstance(dt, datetime):
@@ -32,6 +42,10 @@ def to_aware(dt):
     return dt
 
 def convertBytesTo(unit):
+    """
+    A decorator that modifies all byte units to the desired unit.
+    :param unit: The desired unit (KB, MB, GB etc.)
+    """
     if (not unit in Units):
         raise ValueError("Invalid unit <%s>" % unit)
     index = Units.index(unit)
@@ -69,6 +83,9 @@ def convertBytesTo(unit):
 
 
 class Singleton(type):
+    """
+    An implementation of a Singleton class.
+    """
     def __init__(self, *args, **kwargs):
         self.__instance = None
         super().__init__(*args, **kwargs)
@@ -83,6 +100,6 @@ class Singleton(type):
 
 class singletonThreadPool(ThreadPoolExecutor,metaclass=Singleton):
     """
-    Create a singleton class which wrap a threadpool object
+    A singleton ThreadpoolExecutor class.
     """
     pass

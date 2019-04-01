@@ -11,6 +11,10 @@ from nglogman.serializers import *
 from nglogman.models import Task, LGNode, NodeGroup
 from nglm_grpc.gRPCMethods import SCHEDULER
 
+"""
+Contains the views and API methods for the RESTful interface of NGLogmanServer.
+"""
+
 @api_view(['GET'])
 def api_root(request):
     return Response({
