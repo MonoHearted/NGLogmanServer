@@ -13,6 +13,7 @@ import uuid
 from datetime import timedelta
 
 from bokeh.layouts import column
+from bokeh.models.widgets import Panel, Tabs
 from bokeh.plotting import figure
 from bokeh.embed import components
 
@@ -48,7 +49,7 @@ def SearchView(request):
                 'm_grp': NodeGroup.objects.filter(
                     Q(groupname__icontains=query) | Q(comments__icontains=query)
                 ).annotate(node_count=Count('nodes')),
-                'm_task': Task.objects.filter(taskName=query)
+                'm_task': Task.objects.filter(taskName__icontains=query)
             }
         else:
             query = uuid.UUID(query)
@@ -249,7 +250,7 @@ def overviewGraph(request, taskUUID='', testTime=''):
         sheet['node'] = name
         full_df = full_df.append(sheet)
 
-    figures = list()
+    figures = {'CPU': [], 'Memory': [], 'IO': [], 'Other': []}
     statlines = dict()
     full_df.columns = full_df.columns.str.replace(r'\s+', '_')
     tooltips = [('(x, y)', '($x{int}, $y)')]
@@ -298,14 +299,28 @@ def overviewGraph(request, taskUUID='', testTime=''):
     #        plot.circle(val[0], val[1], fill_color="white", color=color,
     #                    size=8)
         plot.legend.click_policy = "hide"
-        figures.append(plot)
 
-    figures = column(*figures)
+        if 'cpu' in col.lower():
+            figures['CPU'].append(plot)
+        elif [x for x in ['memory', 'virtual', 'private', 'heap', 'gc']
+              if x in col.lower()]:
+            figures['Memory'].append(plot)
+        elif [x for x in ['disk', 'packets', 'file', 'network']
+              if x in col.lower()]:
+            figures['IO'].append(plot)
+        else:
+            figures['Other'].append(plot)
+
+    tabs = []
+    for category, plots in figures.items():
+        tabs.append(Panel(child=column(*plots), title=category))
+    tabs = Tabs(tabs=tabs)
+
     # opts = [key for key in statlines].insert(0, 'None')
     # select = Select(title='Statline:', value='None', options=opts)
     # select.callback = CustomJS(args=statlines, code="""
     #
     # """)
-    script, div = components(figures)
+    script, div = components(tabs)
     context = {'bokehScript': script, 'bokehDiv': div}
     return HttpResponse(template.render(context, request))

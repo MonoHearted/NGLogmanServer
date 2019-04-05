@@ -10,7 +10,7 @@ MUL = [1, 1 << 10, 1 << 20, 1 << 30, 1 << 40]
 
 def acronymTitleCase(string):
     string = string.title()
-    acronyms = ['KB', 'MB', 'GB', 'TB', 'CPU']
+    acronyms = ['KB', 'MB', 'GB', 'TB', 'CPU', 'GC', 'GIR', 'RWS']
     for acronym in map(str.title, acronyms):
         if acronym in string:
             string = string.replace(acronym, acronym.upper())
