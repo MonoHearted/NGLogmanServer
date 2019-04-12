@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='nglm_grpc',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x14nglm_grpc/nglm.proto\x12\tnglm_grpc\"H\n\nclientInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\x0c\n\x04ipv4\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\x12\x0c\n\x04uuid\x18\x04 \x01(\t\"1\n\x10registerResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0f\n\x07success\x18\x02 \x01(\x08\"\x1b\n\x08response\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x16\n\x05query\x12\r\n\x05query\x18\x01 \x01(\t\"\x1e\n\texception\x12\x11\n\texception\x18\x01 \x01(\t\"\x19\n\tchunkSize\x12\x0c\n\x04size\x18\x01 \x01(\x01\"Z\n\x06params\x12\x0b\n\x03pid\x18\x01 \x01(\x05\x12\r\n\x05pname\x18\x02 \x01(\t\x12\x10\n\x08interval\x18\x03 \x01(\x05\x12\x10\n\x08\x64uration\x18\x04 \x01(\x05\x12\x10\n\x08taskUUID\x18\x05 \x01(\t\"\x18\n\x06\x63hunks\x12\x0e\n\x06\x62uffer\x18\x01 \x01(\x0c\x32~\n\x06Server\x12@\n\x08register\x12\x15.nglm_grpc.clientInfo\x1a\x1b.nglm_grpc.registerResponse\"\x00\x12\x32\n\x07isAlive\x12\x10.nglm_grpc.query\x1a\x13.nglm_grpc.response\"\x00\x32\x99\x02\n\x07Logging\x12\x31\n\x05start\x12\x11.nglm_grpc.params\x1a\x13.nglm_grpc.response\"\x00\x12\x34\n\x06output\x12\x11.nglm_grpc.chunks\x1a\x13.nglm_grpc.response\"\x00(\x01\x12\x32\n\x03\x65rr\x12\x14.nglm_grpc.exception\x1a\x13.nglm_grpc.response\"\x00\x12\x38\n\tgetConfig\x12\x14.nglm_grpc.chunkSize\x1a\x11.nglm_grpc.chunks\"\x00\x30\x01\x12\x37\n\tsetConfig\x12\x11.nglm_grpc.chunks\x1a\x13.nglm_grpc.response\"\x00(\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x14nglm_grpc/nglm.proto\x12\tnglm_grpc\"W\n\nclientInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\x0c\n\x04ipv4\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\x12\x0c\n\x04uuid\x18\x04 \x01(\t\x12\r\n\x05\x61lias\x18\x05 \x01(\t\"1\n\x10registerResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0f\n\x07success\x18\x02 \x01(\x08\"\x1b\n\x08response\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x16\n\x05query\x12\r\n\x05query\x18\x01 \x01(\t\"\x1e\n\texception\x12\x11\n\texception\x18\x01 \x01(\t\"\x19\n\tchunkSize\x12\x0c\n\x04size\x18\x01 \x01(\x01\"Z\n\x06params\x12\x0b\n\x03pid\x18\x01 \x01(\x05\x12\r\n\x05pname\x18\x02 \x01(\t\x12\x10\n\x08interval\x18\x03 \x01(\x05\x12\x10\n\x08\x64uration\x18\x04 \x01(\x05\x12\x10\n\x08taskUUID\x18\x05 \x01(\t\"\x18\n\x06\x63hunks\x12\x0e\n\x06\x62uffer\x18\x01 \x01(\x0c\x32~\n\x06Server\x12@\n\x08register\x12\x15.nglm_grpc.clientInfo\x1a\x1b.nglm_grpc.registerResponse\"\x00\x12\x32\n\x07isAlive\x12\x10.nglm_grpc.query\x1a\x13.nglm_grpc.response\"\x00\x32\x99\x02\n\x07Logging\x12\x31\n\x05start\x12\x11.nglm_grpc.params\x1a\x13.nglm_grpc.response\"\x00\x12\x34\n\x06output\x12\x11.nglm_grpc.chunks\x1a\x13.nglm_grpc.response\"\x00(\x01\x12\x32\n\x03\x65rr\x12\x14.nglm_grpc.exception\x1a\x13.nglm_grpc.response\"\x00\x12\x38\n\tgetConfig\x12\x14.nglm_grpc.chunkSize\x1a\x11.nglm_grpc.chunks\"\x00\x30\x01\x12\x37\n\tsetConfig\x12\x11.nglm_grpc.chunks\x1a\x13.nglm_grpc.response\"\x00(\x01\x62\x06proto3')
 )
 
 
@@ -60,6 +60,13 @@ _CLIENTINFO = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='alias', full_name='nglm_grpc.clientInfo.alias', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -73,7 +80,7 @@ _CLIENTINFO = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=35,
-  serialized_end=107,
+  serialized_end=122,
 )
 
 
@@ -110,8 +117,8 @@ _REGISTERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=109,
-  serialized_end=158,
+  serialized_start=124,
+  serialized_end=173,
 )
 
 
@@ -141,8 +148,8 @@ _RESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=160,
-  serialized_end=187,
+  serialized_start=175,
+  serialized_end=202,
 )
 
 
@@ -172,8 +179,8 @@ _QUERY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=189,
-  serialized_end=211,
+  serialized_start=204,
+  serialized_end=226,
 )
 
 
@@ -203,8 +210,8 @@ _EXCEPTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=213,
-  serialized_end=243,
+  serialized_start=228,
+  serialized_end=258,
 )
 
 
@@ -234,8 +241,8 @@ _CHUNKSIZE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=245,
-  serialized_end=270,
+  serialized_start=260,
+  serialized_end=285,
 )
 
 
@@ -293,8 +300,8 @@ _PARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=272,
-  serialized_end=362,
+  serialized_start=287,
+  serialized_end=377,
 )
 
 
@@ -324,8 +331,8 @@ _CHUNKS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=364,
-  serialized_end=388,
+  serialized_start=379,
+  serialized_end=403,
 )
 
 DESCRIPTOR.message_types_by_name['clientInfo'] = _CLIENTINFO
@@ -402,8 +409,8 @@ _SERVER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=390,
-  serialized_end=516,
+  serialized_start=405,
+  serialized_end=531,
   methods=[
   _descriptor.MethodDescriptor(
     name='register',
@@ -435,8 +442,8 @@ _LOGGING = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=1,
   serialized_options=None,
-  serialized_start=519,
-  serialized_end=800,
+  serialized_start=534,
+  serialized_end=815,
   methods=[
   _descriptor.MethodDescriptor(
     name='start',

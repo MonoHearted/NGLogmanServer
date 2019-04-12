@@ -11,6 +11,7 @@ from . import nglm_pb2_grpc
 from nglogman.models import LGNode, Task, NodeGroup
 from nglm_grpc.modules.Utility import timestamp
 from apscheduler.schedulers.background import BackgroundScheduler
+from django.db.models import Q
 
 """
 Contains the methods that relate to the gRPC methods used in NGLogman. This
@@ -33,19 +34,21 @@ class ServerServicer(nglm_pb2_grpc.ServerServicer):
         res = nglm_pb2.registerResponse()
         try:
             matchedNodes = LGNode.objects.filter(
-                hostname__iexact=request.hostname,
-                ip__iexact=request.ipv4
+                Q(ip__iexact=request.ipv4) |
+                Q(nodeUUID__exact=uuid.UUID(request.uuid))
             )
             if matchedNodes.count() == 0:
                 res.uuid = request.uuid if request.uuid else str(uuid.uuid4())
-                LGNode.objects.create(hostname=request.hostname,
-                                      ip=request.ipv4, port=request.port,
+                name = request.alias if request.alias else request.hostname
+                LGNode.objects.create(hostname=name, ip=request.ipv4,
+                                      port=request.port,
                                       nodeUUID=uuid.UUID(res.uuid))
                 print('Registered new node. Hostname: ' +
                       request.hostname + ' IP: ' + request.ipv4 +
                       ' Host Port:' + str(request.port))
             else:
-                matchedNodes.update(port=request.port)
+                name = request.alias if request.alias else request.hostname
+                matchedNodes.update(hostname=name, port=request.port)
                 res.uuid = str(matchedNodes[0].nodeUUID)
                 print('Returning node. Hostname: ' +
                       request.hostname + ' IP: ' + request.ipv4 +
@@ -167,7 +170,7 @@ def validateTask(task):
     wb = Workbook()
     for root, dirs, files in os.walk(output_path):
         for f in files:
-            name = re.compile(r'(.*)_.*_(?:result.xlsx)').match(f).group(1)
+            name = re.compile(r'(.*)_.*_.*_(?:result.xlsx)').match(f).group(1)
             wb.create_sheet(name, 0)
             read_wb = load_workbook(os.path.join(root, f))
             read_ws = read_wb.worksheets[0]

@@ -1,6 +1,7 @@
 import os
 import re
 import itertools
+import numpy
 
 from django.template import loader
 from django.http import HttpResponse
@@ -10,7 +11,7 @@ from django.db.models import Count, Q
 
 import pandas as pd
 import uuid
-from datetime import timedelta
+from dateutil import parser
 
 from bokeh.layouts import column
 from bokeh.models.widgets import Panel, Tabs
@@ -250,12 +251,62 @@ def overviewGraph(request, taskUUID='', testTime=''):
         sheet['node'] = name
         full_df = full_df.append(sheet)
 
-    figures = {'CPU': [], 'Memory': [], 'IO': [], 'Other': []}
-    statlines = dict()
+    figures = {'CPU': [], 'Memory': [], 'Disk IO': [], 'Network IO': [],
+               'Other': []}
+    # statlines = {}
     full_df.columns = full_df.columns.str.replace(r'\s+', '_')
     tooltips = [('(x, y)', '($x{int}, $y)')]
+    times = {}
+    start = {}
+
+    cpu_plots = {}
+    from bokeh.palettes import Category10_10 as small_palette
+    cpu_colors = itertools.cycle(small_palette)
+
+    for row in full_df.itertuples():
+        if not row.Time.upper().isupper():
+            if row.node not in start:
+                start[row.node] = parser.parse(row.Time, ignoretz=True)
+            if row.node not in times:
+                times[row.node] = []
+            elapsed = parser.parse(row.Time) - start[row.node]
+            times[row.node].append(elapsed.total_seconds())
     for col in full_df:
-        if col == 'Time' or col == 'node':
+        if col == 'node' or col == 'Time':
+            continue
+
+        if re.search('CPU\d', col):
+            data = {}
+            for row in full_df.itertuples():
+                if row.node not in cpu_plots:
+                    cpu_plots[row.node] = figure(
+                        width=1000, height=300,
+                        x_axis_label='Time Elapsed (s)',
+                        y_axis_label='CPU Used Percentage',
+                        title=row.node + ' CPU Used Percentage',
+                        sizing_mode='stretch_both',
+                        tooltips=tooltips
+                    )
+                    cpu_plots[row.node].title.text_font_size = '14pt'
+                    cpu_plots[row.node].title.text_font_style = 'bold'
+
+                if row.node not in data:
+                    data[row.node] = []
+
+                data[row.node].append(getattr(row, col))
+
+            for node, val in data.items():
+                if not numpy.isnan(val).any():
+                    y_average = [sum(val) / len(val)] * len(val)
+                    color = next(cpu_colors)
+                    cpu_plots[node].line(times[node], val,
+                                         legend=acronymTitleCase(
+                                             col.replace('_', ' ')
+                                         ),
+                                         color=color, line_width=2)
+                    cpu_plots[node].line(times[node], y_average,
+                                         line_dash='dashed', color=color)
+                    cpu_plots[node].legend.click_policy = "hide"
             continue
 
         plot = figure(
@@ -269,33 +320,31 @@ def overviewGraph(request, taskUUID='', testTime=''):
         plot.title.text_font_size = '14pt'
         plot.title.text_font_style = 'bold'
 
-        data = dict()
-
+        data = {}
         for row in full_df.itertuples():
-            if not re.search('[a-z]', row.Time):
-                if not data.get(row.node):
-                    data[row.node] = [list(), list()]
-                data[row.node][0].append(row.Index * task.interval)
-                data[row.node][1].append(getattr(row, col))
+            if not row.Time.upper().isupper():
+                if row.node not in data:
+                    data[row.node] = []
+                data[row.node].append(getattr(row, col))
             # else:
             #     if not statlines.get(row.Time):
-            #         statlines[row.Time] = list()
+            #         statlines[row.Time] = []
             #     statlines[row.Time].append(plot.line(
             #         row.Index, col, line_dash='dashed', visible=False))
-
-        if(len(data.items()) <= 10):
-            from bokeh.palettes import Category10_10 as palette
+        if len(data.items()) <= 10:
+            palette = small_palette
         else:
             from bokeh.palettes import Category20_20 as palette
 
         colors = itertools.cycle(palette)
         for node, val in data.items():
-            y_average = [sum(val[1]) / len(val[1])] * len(val[1])
-            color = next(colors)
-            plot.line(val[0], val[1], legend=node, color=color,
-                      line_width=2)
-            plot.line(val[0], y_average,
-                      line_dash='dashed', color=color)
+            if not numpy.isnan(val).any():
+                y_average = [sum(val) / len(val)] * len(val)
+                color = next(colors)
+                plot.line(times[node], val, legend=node, color=color,
+                          line_width=2)
+                plot.line(times[node], y_average,
+                          line_dash='dashed', color=color)
     #        plot.circle(val[0], val[1], fill_color="white", color=color,
     #                    size=8)
         plot.legend.click_policy = "hide"
@@ -305,11 +354,15 @@ def overviewGraph(request, taskUUID='', testTime=''):
         elif [x for x in ['memory', 'virtual', 'private', 'heap', 'gc']
               if x in col.lower()]:
             figures['Memory'].append(plot)
-        elif [x for x in ['disk', 'packets', 'file', 'network']
-              if x in col.lower()]:
-            figures['IO'].append(plot)
+        elif 'disk' in col.lower():
+            figures['Disk IO'].append(plot)
+        elif [x for x in ['packets', 'network'] if x in col.lower()]:
+            figures['Network IO'].append(plot)
         else:
             figures['Other'].append(plot)
+
+    for node, plot in cpu_plots.items():
+        figures['CPU'].append(plot)
 
     tabs = []
     for category, plots in figures.items():
