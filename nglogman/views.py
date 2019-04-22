@@ -98,9 +98,15 @@ def TaskResultsView(request, taskUUID=''):
         messages.success(request, 'The test was successfully deleted.')
         return redirect(request.path_info)
 
+    all_tests_list = sorted(next(os.walk(path))[1], reverse=True)
+    completed_tests = []
+    for test in all_tests_list:
+        if os.path.isfile(os.path.join(path, test, 'overview.xlsx')):
+            completed_tests.append(test)
+
     context = {
         'task': task,
-        'test_list': sorted(next(os.walk(path))[1], reverse=True)
+        'test_list': completed_tests
     }
     return HttpResponse(template.render(context, request))
 
