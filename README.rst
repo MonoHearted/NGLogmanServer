@@ -1,10 +1,10 @@
 ================
-NGLogman Server
+TestLog Server
 ================
 
 Overview
 --------
-This is the server-side component of the NGLogman tool. The main purpose is to manage NGLogman Clients,
+This is the server-side component of the TestLog tool. The main purpose is to manage TestLog Clients,
 by providing features such as grouping, task delegation, configuration setting, etc. It provides these
 services through two main ways: a Django-powered web UI, as well as a RESTful API. Server-client
 communication uses the gRPC protocol.
